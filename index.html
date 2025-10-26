@@ -244,18 +244,66 @@
             background: rgba(139, 115, 85, 0.05);
         }
         
-        .note-checkbox {
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid #8B7355;
-            border-radius: 4px;
-            appearance: none;
-            position: relative;
-            flex-shrink: 0;
-            background: white;
-        }
+       .note-checkbox {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 2px solid #8B7355;
+    border-radius: 6px;
+    appearance: none;
+    position: relative;
+    flex-shrink: 0;
+    background: white;
+}
+
+.note-checkbox:checked {
+    background: #8B7355;
+    border-color: #8B7355;
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+}
+
+.note-checkbox:checked::after {
+    content: '✓';
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    font-size: 14px;
+    font-weight: bold;
+    animation: checkmark 0.3s ease-out 0.1s both;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pop {
+    0% { 
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(139, 115, 85, 0.7);
+    }
+    50% { 
+        transform: scale(1.2);
+        box-shadow: 0 0 0 8px rgba(139, 115, 85, 0);
+    }
+    100% { 
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+    }
+}
         
         .note-checkbox:checked {
             background: #8B7355;
@@ -830,6 +878,86 @@ function checkSavedAuth() {
             li.appendChild(btn);
             list.appendChild(li);
         });
+        // Отображение заметок
+function renderNotes(notes) {
+    console.log('🎨 Отрисовка заметок:', notes);
+    list.innerHTML = '';
+    
+    if (notes.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.textContent = 'На этот день задач пока нет...';
+        list.appendChild(emptyState);
+        return;
+    }
+    
+    // СОРТИРУЕМ: выполненные вниз, активные вверху
+    const sortedNotes = [...notes].sort((a, b) => {
+        if (a.done && !b.done) return 1;
+        if (!a.done && b.done) return -1;
+        return a.id - b.id;
+    });
+    
+    sortedNotes.forEach((note) => {
+        const li = document.createElement('li');
+        li.className = 'note-item';
+        
+        // Чекбокс
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'note-checkbox';
+        checkbox.checked = !!note.done;
+        
+        checkbox.addEventListener('change', async () => {
+            console.log('🔄 Переключение статуса заметки:', note.id);
+            
+            // Микро-анимация перед запросом
+            checkbox.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                checkbox.style.transform = '';
+            }, 300);
+            
+            await fetch(`/api/notes/${note.id}/toggle`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`
+                }
+            });
+            loadNotes();
+        });
+        
+        // Текст задачи
+        const textSpan = document.createElement('span');
+        textSpan.className = 'note-text';
+        textSpan.textContent = note.text;
+        if (note.done) {
+            textSpan.classList.add('completed');
+            // Добавляем плавное затухание
+            textSpan.style.opacity = '0.7';
+            textSpan.style.transform = 'translateX(10px)';
+        }
+        
+        // Кнопка удаления
+        const btn = document.createElement('button');
+        btn.textContent = '❌';
+        btn.className = 'delete-btn';
+        btn.addEventListener('click', async () => {
+            console.log('🗑️ Удаление заметки:', note.id);
+            await fetch(`/api/notes/${note.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`
+                }
+            });
+            loadNotes();
+        });
+        
+        li.appendChild(checkbox);
+        li.appendChild(textSpan);
+        li.appendChild(btn);
+        list.appendChild(li);
+    });
+}
     }
 
     // ==================== ИНИЦИАЛИЗАЦИЯ ====================
