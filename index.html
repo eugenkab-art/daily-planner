@@ -488,27 +488,31 @@
     }
 
     // Автоматический вход при загрузке страницы
-    function checkSavedAuth() {
-        const token = getAuthToken();
-        const userData = getUserData();
+    // Автоматический вход при загрузке страницы
+function checkSavedAuth() {
+    const token = getAuthToken();
+    const userData = getUserData();
+    
+    console.log('🔍 Проверка сохраненной сессии:', { 
+        hasToken: !!token, 
+        hasUserData: !!userData 
+    });
+    
+    if (token && userData) {
+        console.log('✅ Восстанавливаем сессию для пользователя:', userData.username);
         
-        console.log('🔍 Проверка сохраненной сессии:', { 
-            hasToken: !!token, 
-            hasUserData: !!userData 
-        });
+        // ВОТ ИСПРАВЛЕНИЕ - устанавливаем глобальные переменные
+        currentToken = token;
+        currentUser = userData;
         
-        if (token && userData) {
-            console.log('✅ Восстанавливаем сессию для пользователя:', userData.username);
-            currentToken = token;
-            currentUser = userData;
-            currentUserSpan.textContent = currentUser.username;
-            authSection.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-            loadNotes();
-        } else {
-            console.log('ℹ️ Нет сохраненной сессии, показываем форму входа');
-        }
+        currentUserSpan.textContent = currentUser.username;
+        authSection.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        loadNotes();
+    } else {
+        console.log('ℹ️ Нет сохраненной сессии, показываем форму входа');
     }
+}
 
     // Функция показа ошибки
     function showAuthError(message) {
