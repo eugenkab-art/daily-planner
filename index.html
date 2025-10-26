@@ -420,129 +420,168 @@
         <button class="corner-btn next-day-corner">→</button>
     </div>
 
-    <script>
-        console.log('🚀 Скрипт запущен');
-        
-        let currentToken = null;
-        let currentUser = null;
-        
-        // Элементы авторизации
-        const authSection = document.getElementById('authSection');
-        const mainContent = document.getElementById('mainContent');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const currentUserSpan = document.getElementById('currentUser');
-        const authError = document.getElementById('authError');
-        
-        // Элементы ежедневника
-        const form = document.getElementById('noteForm');
-        const input = document.getElementById('noteInput');
-        const list = document.getElementById('notesList');
-        const datePicker = document.getElementById('datePicker');
-        const prevDayBtn = document.querySelector('.prev-day-btn');
-        const nextDayBtn = document.querySelector('.next-day-btn');
-        const prevDayCorner = document.querySelector('.prev-day-corner');
-        const nextDayCorner = document.querySelector('.next-day-corner');
-        
-        // Проверяем что все элементы найдены
-        console.log('📝 Элементы страницы:', {
-            authSection: !!authSection,
-            mainContent: !!mainContent,
-            usernameInput: !!usernameInput,
-            passwordInput: !!passwordInput,
-            loginBtn: !!loginBtn,
-            registerBtn: !!registerBtn,
-            logoutBtn: !!logoutBtn,
-            form: !!form,
-            datePicker: !!datePicker
-        });
+<script>
+    console.log('🚀 Скрипт запущен - ВЕРСИЯ С СОХРАНЕНИЕМ СЕССИИ');
+    
+    let currentToken = null;
+    let currentUser = null;
+    
+    // Элементы авторизации
+    const authSection = document.getElementById('authSection');
+    const mainContent = document.getElementById('mainContent');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const currentUserSpan = document.getElementById('currentUser');
+    const authError = document.getElementById('authError');
+    
+    // Элементы ежедневника
+    const form = document.getElementById('noteForm');
+    const input = document.getElementById('noteInput');
+    const list = document.getElementById('notesList');
+    const datePicker = document.getElementById('datePicker');
+    const prevDayBtn = document.querySelector('.prev-day-btn');
+    const nextDayBtn = document.querySelector('.next-day-btn');
+    const prevDayCorner = document.querySelector('.prev-day-corner');
+    const nextDayCorner = document.querySelector('.next-day-corner');
+    
+    // Проверяем что все элементы найдены
+    console.log('📝 Элементы страницы:', {
+        authSection: !!authSection,
+        mainContent: !!mainContent,
+        usernameInput: !!usernameInput,
+        passwordInput: !!passwordInput,
+        loginBtn: !!loginBtn,
+        registerBtn: !!registerBtn,
+        logoutBtn: !!logoutBtn,
+        form: !!form,
+        datePicker: !!datePicker
+    });
 
-        // Устанавливаем сегодняшнюю дату
-        datePicker.value = new Date().toISOString().split('T')[0];
-        
-        // Функция показа ошибки
-        function showAuthError(message) {
-            authError.textContent = message;
-            authError.classList.remove('hidden');
-        }
+    // Устанавливаем сегодняшнюю дату
+    datePicker.value = new Date().toISOString().split('T')[0];
+    
+    // ==================== СОХРАНЕНИЕ СЕССИИ ====================
 
-        function hideAuthError() {
-            authError.classList.add('hidden');
+    // Функции для работы с localStorage
+    function saveAuthData(token, user) {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(user));
+        console.log('💾 Данные авторизации сохранены');
+    }
+
+    function getAuthToken() {
+        return localStorage.getItem('authToken');
+    }
+
+    function getUserData() {
+        const userData = localStorage.getItem('userData');
+        return userData ? JSON.parse(userData) : null;
+    }
+
+    function clearAuthData() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        console.log('🧹 Данные авторизации очищены');
+    }
+
+    // Автоматический вход при загрузке страницы
+    function checkSavedAuth() {
+        const token = getAuthToken();
+        const userData = getUserData();
+        
+        console.log('🔍 Проверка сохраненной сессии:', { 
+            hasToken: !!token, 
+            hasUserData: !!userData 
+        });
+        
+        if (token && userData) {
+            console.log('✅ Восстанавливаем сессию для пользователя:', userData.username);
+            currentToken = token;
+            currentUser = userData;
+            currentUserSpan.textContent = currentUser.username;
+            authSection.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            loadNotes();
+        } else {
+            console.log('ℹ️ Нет сохраненной сессии, показываем форму входа');
+        }
+    }
+
+    // Функция показа ошибки
+    function showAuthError(message) {
+        authError.textContent = message;
+        authError.classList.remove('hidden');
+    }
+
+    function hideAuthError() {
+        authError.classList.add('hidden');
+    }
+    
+    // Обновляем успешную авторизацию
+    function handleAuthSuccess(data) {
+        console.log('✅ Успешная авторизация, сохраняем данные');
+        currentToken = data.token;
+        currentUser = data.user;
+        saveAuthData(data.token, data.user);
+        currentUserSpan.textContent = currentUser.username;
+        authSection.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        hideAuthError();
+        loadNotes();
+    }
+
+    // Обновляем функцию authenticate
+    async function authenticate(endpoint) {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        
+        console.log('🔐 Попытка авторизации:', { 
+            endpoint, 
+            username, 
+            passwordLength: password.length 
+        });
+        
+        if (!username || !password) {
+            showAuthError('Введите имя пользователя и пароль');
+            return;
         }
         
-        // Авторизация
-        loginBtn.addEventListener('click', async () => {
-            console.log('🖱️ Нажата кнопка Войти');
-            hideAuthError();
-            await authenticate('/api/login');
-        });
-        
-        registerBtn.addEventListener('click', async () => {
-            console.log('🖱️ Нажата кнопка Регистрация');
-            hideAuthError();
-            await authenticate('/api/register');
-        });
-        
-        async function authenticate(endpoint) {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
+        try {
+            console.log('📤 Отправка запроса на:', endpoint);
             
-            console.log('🔐 Попытка авторизации:', { 
-                endpoint, 
-                username, 
-                passwordLength: password.length 
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
             });
             
-            if (!username || !password) {
-                showAuthError('Введите имя пользователя и пароль');
-                return;
-            }
+            console.log('📥 Ответ получен. Статус:', response.status);
             
-            try {
-                console.log('📤 Отправка запроса на:', endpoint);
-                
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                console.log('📥 Ответ получен. Статус:', response.status);
-                
-                const data = await response.json();
-                console.log('📊 Данные ответа:', data);
-                
-                if (response.ok) {
-                    console.log('✅ Успешная авторизация');
-                    currentToken = data.token;
-                    currentUser = data.user;
-                    currentUserSpan.textContent = currentUser.username;
-                    authSection.classList.add('hidden');
-                    mainContent.classList.remove('hidden');
-                    hideAuthError();
-                    await loadNotes();
-                } else {
-                    console.log('❌ Ошибка авторизации:', data.error);
-                    showAuthError(data.error || 'Неизвестная ошибка');
-                }
-            } catch (error) {
-                console.error('💥 Ошибка сети:', error);
-                console.error('💥 Подробности ошибки:', {
-                    name: error.name,
-                    message: error.message
-                });
-                showAuthError('Ошибка соединения: ' + error.message);
+            const data = await response.json();
+            console.log('📊 Данные ответа:', data);
+            
+            if (response.ok) {
+                handleAuthSuccess(data);
+            } else {
+                console.log('❌ Ошибка авторизации:', data.error);
+                showAuthError(data.error || 'Неизвестная ошибка');
             }
+        } catch (error) {
+            console.error('💥 Ошибка сети:', error);
+            showAuthError('Ошибка соединения: ' + error.message);
         }
-        
-        // Выход
+    }
+
+    // Обновляем функцию выхода
+    function setupLogout() {
         logoutBtn.addEventListener('click', () => {
             console.log('🚪 Выход из системы');
             currentToken = null;
             currentUser = null;
+            clearAuthData();
             authSection.classList.remove('hidden');
             mainContent.classList.add('hidden');
             list.innerHTML = '';
@@ -550,166 +589,195 @@
             passwordInput.value = '';
             hideAuthError();
         });
+    }
+
+    // ==================== ЕЖЕДНЕВНИК ====================
+    
+    // Навигация по дням
+    function changeDate(days) {
+        const currentDate = new Date(datePicker.value);
+        currentDate.setDate(currentDate.getDate() + days);
+        datePicker.value = currentDate.toISOString().split('T')[0];
+        console.log('📅 Смена даты на:', datePicker.value);
+        loadNotes();
+    }
+    
+    prevDayBtn.addEventListener('click', () => changeDate(-1));
+    nextDayBtn.addEventListener('click', () => changeDate(1));
+    prevDayCorner.addEventListener('click', () => changeDate(-1));
+    nextDayCorner.addEventListener('click', () => changeDate(1));
+    
+    datePicker.addEventListener('change', () => {
+        console.log('📅 Выбрана дата:', datePicker.value);
+        loadNotes();
+    });
+    
+    // Обработчик формы
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
         
-        // Навигация по дням
-        function changeDate(days) {
-            const currentDate = new Date(datePicker.value);
-            currentDate.setDate(currentDate.getDate() + days);
-            datePicker.value = currentDate.toISOString().split('T')[0];
-            console.log('📅 Смена даты на:', datePicker.value);
-            loadNotes();
+        if (text) {
+            console.log('➕ Добавление заметки:', text);
+            await addNote(text);
+            input.value = '';
+            await loadNotes();
+        }
+    });
+    
+    // Загрузка заметок
+    async function loadNotes() {
+        if (!currentToken) {
+            console.log('⚠️ Нет токена, пропускаем загрузку заметок');
+            return;
         }
         
-        prevDayBtn.addEventListener('click', () => changeDate(-1));
-        nextDayBtn.addEventListener('click', () => changeDate(1));
-        prevDayCorner.addEventListener('click', () => changeDate(-1));
-        nextDayCorner.addEventListener('click', () => changeDate(1));
+        const date = datePicker.value;
+        console.log('📝 Загрузка заметок для даты:', date);
         
-        datePicker.addEventListener('change', () => {
-            console.log('📅 Выбрана дата:', datePicker.value);
-            loadNotes();
-        });
-        
-        // Обработчик формы
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = input.value.trim();
+        try {
+            const response = await fetch(`/api/notes?date=${date}`, {
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`
+                }
+            });
             
-            if (text) {
-                console.log('➕ Добавление заметки:', text);
-                await addNote(text);
-                input.value = '';
-                await loadNotes();
-            }
-        });
-        
-        // Загрузка заметок
-        async function loadNotes() {
-            if (!currentToken) {
-                console.log('⚠️ Нет токена, пропускаем загрузку заметок');
+            console.log('📥 Ответ на запрос заметок. Статус:', response.status);
+            
+            if (response.status === 401) {
+                console.log('❌ Токен устарел');
+                clearAuthData();
+                authSection.classList.remove('hidden');
+                mainContent.classList.add('hidden');
                 return;
             }
             
-            const date = datePicker.value;
-            console.log('📝 Загрузка заметок для даты:', date);
+            const notes = await response.json();
+            console.log('📊 Загружено заметок:', notes.length);
+            renderNotes(notes);
+        } catch (error) {
+            console.error('💥 Ошибка загрузки заметок:', error);
+        }
+    }
+    
+    // Добавление заметки
+    async function addNote(text) {
+        try {
+            const response = await fetch('/api/notes', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify({ 
+                    text, 
+                    date: datePicker.value 
+                })
+            });
             
-            try {
-                const response = await fetch(`/api/notes?date=${date}`, {
+            console.log('📥 Ответ на добавление заметки. Статус:', response.status);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка сервера');
+            }
+
+            console.log('✅ Заметка успешно добавлена');
+        } catch (error) {
+            console.error('💥 Ошибка добавления заметки:', error);
+            alert('Ошибка при добавлении заметки: ' + error.message);
+        }
+    }
+    
+    // Отображение заметок
+    function renderNotes(notes) {
+        console.log('🎨 Отрисовка заметок:', notes);
+        list.innerHTML = '';
+        
+        if (notes.length === 0) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.textContent = 'На этот день задач пока нет...';
+            list.appendChild(emptyState);
+            return;
+        }
+        
+        notes.forEach((note) => {
+            const li = document.createElement('li');
+            li.className = 'note-item';
+            
+            // Чекбокс
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'note-checkbox';
+            checkbox.checked = !!note.done;
+            
+            checkbox.addEventListener('change', async () => {
+                console.log('🔄 Переключение статуса заметки:', note.id);
+                await fetch(`/api/notes/${note.id}/toggle`, {
+                    method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${currentToken}`
                     }
                 });
-                
-                console.log('📥 Ответ на запрос заметок. Статус:', response.status);
-                
-                if (response.status === 401) {
-                    console.log('❌ Токен устарел');
-                    logoutBtn.click();
-                    return;
-                }
-                
-                const notes = await response.json();
-                console.log('📊 Загружено заметок:', notes.length);
-                renderNotes(notes);
-            } catch (error) {
-                console.error('💥 Ошибка загрузки заметок:', error);
-            }
-        }
-        
-        // Добавление заметки
-        async function addNote(text) {
-            try {
-                const response = await fetch('/api/notes', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentToken}`
-                    },
-                    body: JSON.stringify({ 
-                        text, 
-                        date: datePicker.value 
-                    })
-                });
-                
-                console.log('📥 Ответ на добавление заметки. Статус:', response.status);
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Ошибка сервера');
-                }
-
-                console.log('✅ Заметка успешно добавлена');
-            } catch (error) {
-                console.error('💥 Ошибка добавления заметки:', error);
-                alert('Ошибка при добавлении заметки: ' + error.message);
-            }
-        }
-        
-        // Отображение заметок
-        function renderNotes(notes) {
-            console.log('🎨 Отрисовка заметок:', notes);
-            list.innerHTML = '';
-            
-            if (notes.length === 0) {
-                const emptyState = document.createElement('div');
-                emptyState.className = 'empty-state';
-                emptyState.textContent = 'На этот день задач пока нет...';
-                list.appendChild(emptyState);
-                return;
-            }
-            
-            notes.forEach((note) => {
-                const li = document.createElement('li');
-                li.className = 'note-item';
-                
-                // Чекбокс
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'note-checkbox';
-                checkbox.checked = !!note.done;
-                
-                checkbox.addEventListener('change', async () => {
-                    console.log('🔄 Переключение статуса заметки:', note.id);
-                    await fetch(`/api/notes/${note.id}/toggle`, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer ${currentToken}`
-                        }
-                    });
-                    loadNotes();
-                });
-                
-                // Текст задачи
-                const textSpan = document.createElement('span');
-                textSpan.className = 'note-text';
-                textSpan.textContent = note.text;
-                if (note.done) {
-                    textSpan.classList.add('completed');
-                }
-                
-                // Кнопка удаления
-                const btn = document.createElement('button');
-                btn.textContent = '❌';
-                btn.className = 'delete-btn';
-                btn.addEventListener('click', async () => {
-                    console.log('🗑️ Удаление заметки:', note.id);
-                    await fetch(`/api/notes/${note.id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${currentToken}`
-                        }
-                    });
-                    loadNotes();
-                });
-                
-                li.appendChild(checkbox);
-                li.appendChild(textSpan);
-                li.appendChild(btn);
-                list.appendChild(li);
+                loadNotes();
             });
-        }
+            
+            // Текст задачи
+            const textSpan = document.createElement('span');
+            textSpan.className = 'note-text';
+            textSpan.textContent = note.text;
+            if (note.done) {
+                textSpan.classList.add('completed');
+            }
+            
+            // Кнопка удаления
+            const btn = document.createElement('button');
+            btn.textContent = '❌';
+            btn.className = 'delete-btn';
+            btn.addEventListener('click', async () => {
+                console.log('🗑️ Удаление заметки:', note.id);
+                await fetch(`/api/notes/${note.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                loadNotes();
+            });
+            
+            li.appendChild(checkbox);
+            li.appendChild(textSpan);
+            li.appendChild(btn);
+            list.appendChild(li);
+        });
+    }
 
-        console.log('✅ Все обработчики событий установлены');
-    </script>
+    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+
+    // Обработчики авторизации
+    loginBtn.addEventListener('click', async () => {
+        console.log('🖱️ Нажата кнопка Войти');
+        hideAuthError();
+        await authenticate('/api/login');
+    });
+
+    registerBtn.addEventListener('click', async () => {
+        console.log('🖱️ Нажата кнопка Регистрация');
+        hideAuthError();
+        await authenticate('/api/register');
+    });
+
+    // Настройка выхода
+    setupLogout();
+
+    // Проверяем сохраненную сессию при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Страница загружена, проверяем сессию...');
+        checkSavedAuth();
+    });
+
+    console.log('✅ ВЕРСИЯ С СОХРАНЕНИЕМ СЕССИИ - все обработчики установлены');
+</script>
 </body>
 </html>
