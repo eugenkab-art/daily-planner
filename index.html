@@ -166,7 +166,18 @@
             margin-bottom: 30px;
             justify-content: center;
         }
-        
+        <div class="date-navigation">
+    <!-- существующий код -->
+</div>
+
+<!-- ДОБАВЬТЕ ЭТОТ БЛОК -->
+<div class="daily-goal">
+    <input type="text" id="dailyGoal" class="goal-input" placeholder="🎯 Цель на сегодня...">
+</div>
+
+<form class="note-form" id="noteForm">
+    <!-- существующий код -->
+</form>
         .note-input {
             flex: 1;
             max-width: 400px;
@@ -368,6 +379,35 @@
             border-radius: 4px;
             border: 1px solid #ff6b6b;
         }
+        .daily-goal {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.goal-input {
+    width: 80%;
+    max-width: 500px;
+    padding: 15px;
+    font-size: 18px;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+}
+
+.goal-input:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+.goal-input::placeholder {
+    color: #667eea;
+    opacity: 0.7;
+}
     </style>
 </head>
 <body>
@@ -792,6 +832,42 @@ document.getElementById('weeklyViewBtn').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Страница загружена, проверяем сессию...');
     checkSavedAuth();
+});
+// Функции для работы с целью дня
+function saveDailyGoal(goal, date) {
+    const goals = JSON.parse(localStorage.getItem('dailyGoals') || '{}');
+    goals[date] = goal;
+    localStorage.setItem('dailyGoals', JSON.stringify(goals));
+}
+
+function loadDailyGoal(date) {
+    const goals = JSON.parse(localStorage.getItem('dailyGoals') || '{}');
+    return goals[date] || '';
+}
+
+// Обновите функцию loadNotes
+async function loadNotes() {
+    if (!currentToken) {
+        console.log('⚠️ Нет токена, пропускаем загрузку заметок');
+        return;
+    }
+    
+    const date = datePicker.value;
+    console.log('📝 Загрузка заметок для даты:', date);
+    
+    // Загружаем цель дня
+    const goal = loadDailyGoal(date);
+    document.getElementById('dailyGoal').value = goal;
+    
+    // остальной код загрузки заметок...
+}
+
+// Добавьте обработчик для поля цели
+document.getElementById('dailyGoal').addEventListener('change', function() {
+    const date = datePicker.value;
+    const goal = this.value.trim();
+    saveDailyGoal(goal, date);
+    console.log('💾 Цель дня сохранена:', goal);
 });
 </script>
 </body>
