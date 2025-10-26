@@ -387,9 +387,10 @@
         <!-- Основной контент (скрыт до авторизации) -->
         <div id="mainContent" class="hidden">
             <div class="user-info">
-                Вы вошли как: <span id="currentUser"></span>
-                <button id="logoutBtn" class="logout-btn">Выйти</button>
-            </div>
+    Вы вошли как: <span id="currentUser"></span>
+    <button id="logoutBtn" class="logout-btn">Выйти</button>
+    <button id="weeklyViewBtn" class="logout-btn" style="background: #667eea; margin-left: 10px;">Недельный вид</button>
+</div>
             
             <div class="header">
                 <h1>📓 Мой Ежедневник</h1>
@@ -782,6 +783,16 @@ function checkSavedAuth() {
     });
 
     console.log('✅ ВЕРСИЯ С СОХРАНЕНИЕМ СЕССИИ - все обработчики установлены');
+// Переход на недельный вид
+document.getElementById('weeklyViewBtn').addEventListener('click', () => {
+    console.log('📅 Переход на недельный вид');
+    window.location.href = 'weekly.html';
+});
+// Проверяем сохраненную сессию при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Страница загружена, проверяем сессию...');
+    checkSavedAuth();
+});
 </script>
 </body>
 </html>
