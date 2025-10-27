@@ -22,8 +22,7 @@ console.log('🔧 Применен исправленный патч для IPv4
 
 // Подключение к PostgreSQL с правильным pooler
 const pool = new Pool({
-  // Используем правильный pooler URL из вашего Supabase
-  connectionString: 'postgresql://postgres:MyDailyPlanner123@aws-1-eu-west-2.pooler.supabase.com:5432/postgres',
+  connectionString: 'postgresql://postgres.bmqtmlpayroihrxmwzfj:MyDailyPlanner123@aws-1-eu-west-2.pooler.supabase.com:6543/postgres',
   ssl: { 
     rejectUnauthorized: false 
   },
@@ -31,8 +30,7 @@ const pool = new Pool({
   idleTimeoutMillis: 30000
 });
 
-console.log('🔧 Используем aws-1-eu-west-2.pooler.supabase.com');
-
+console.log('🔧 Используем Supabase Connection Pooler');
 const pool = new Pool({
   connectionString: forcedIPv4ConnectionString,
   ssl: { 
