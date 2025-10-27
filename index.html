@@ -128,40 +128,23 @@
             display: block;
         }
 
-        /* Прогресс-бар */
+        /* Убираем прогресс-бар */
         .progress-container {
-            padding: 20px 30px 0;
-            background: #f8f9fa;
+            display: none;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #45a049);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        .progress-text {
-            font-size: 14px;
-            color: #666;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        /* Главная цель дня */
+        /* Стили для цели дня */
         .daily-goal-section {
             padding: 20px 30px;
             background: #fff3cd;
             border-bottom: 1px solid #ffeaa7;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .daily-goal-content {
+            flex: 1;
         }
 
         .daily-goal-label {
@@ -181,11 +164,63 @@
             font-weight: 500;
             padding: 8px 0;
             outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .daily-goal-input.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
         }
 
         .daily-goal-input::placeholder {
             color: #b8a86d;
             font-style: italic;
+        }
+
+        /* Галочка для цели дня */
+        .goal-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #856404;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .goal-checkbox.checked {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            transform: scale(1.1);
+        }
+
+        .goal-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Кнопка удаления цели */
+        .goal-delete {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .goal-delete:hover {
+            background: rgba(220, 53, 69, 0.1);
         }
 
         /* Основной контент */
@@ -364,75 +399,28 @@
             background: #6c757d;
             margin-top: 10px;
         }
+
         /* Конфетти анимация */
-.confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background: #ff0000;
-    top: 0;
-    opacity: 0;
-    pointer-events: none;
-}
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: #ff0000;
+            top: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
 
-.confetti:nth-child(1) { background: #ff0000; left: 10%; animation: fall 2s ease-in forwards; }
-.confetti:nth-child(2) { background: #00ff00; left: 20%; animation: fall 2s ease-in 0.2s forwards; }
-.confetti:nth-child(3) { background: #0000ff; left: 30%; animation: fall 2s ease-in 0.4s forwards; }
-.confetti:nth-child(4) { background: #ffff00; left: 40%; animation: fall 2s ease-in 0.6s forwards; }
-.confetti:nth-child(5) { background: #ff00ff; left: 50%; animation: fall 2s ease-in 0.8s forwards; }
-.confetti:nth-child(6) { background: #00ffff; left: 60%; animation: fall 2s ease-in 1s forwards; }
-.confetti:nth-child(7) { background: #ff9900; left: 70%; animation: fall 2s ease-in 1.2s forwards; }
-.confetti:nth-child(8) { background: #9900ff; left: 80%; animation: fall 2s ease-in 1.4s forwards; }
-.confetti:nth-child(9) { background: #ff0066; left: 90%; animation: fall 2s ease-in 1.6s forwards; }
-.confetti:nth-child(10) { background: #66ff00; left: 95%; animation: fall 2s ease-in 1.8s forwards; }
-
-@keyframes fall {
-    0% {
-        opacity: 1;
-        transform: translateY(-100px) rotate(0deg);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(100vh) rotate(360deg);
-    }
-}
-
-/* Поздравительное сообщение */
-.congrats-message {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    padding: 30px 50px;
-    border-radius: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    z-index: 1000;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-    animation: popIn 0.5s ease-out 0.5s forwards;
-}
-
-@keyframes popIn {
-    0% {
-        transform: translate(-50%, -50%) scale(0);
-    }
-    70% {
-        transform: translate(-50%, -50%) scale(1.1);
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-.congrats-message::after {
-    content: '🎉';
-    font-size: 40px;
-    display: block;
-    margin-top: 10px;
-}
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
@@ -482,19 +470,15 @@
 
         <!-- Основное приложение -->
         <div class="app-section" id="appSection">
-            <!-- Прогресс-бар -->
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">📈 Загрузка статистики...</div>
-            </div>
-
             <!-- Главная цель дня -->
             <div class="daily-goal-section">
-                <div class="daily-goal-label">🎯 Главная цель дня</div>
-                <input type="text" class="daily-goal-input" id="dailyGoalInput" 
-                       placeholder="Сегодня я добьюсь...">
+                <div class="goal-checkbox" id="goalCheckbox" onclick="toggleGoalCompletion()"></div>
+                <div class="daily-goal-content">
+                    <div class="daily-goal-label">🎯 Главная цель дня</div>
+                    <input type="text" class="daily-goal-input" id="dailyGoalInput" 
+                           placeholder="Сегодня я добьюсь...">
+                </div>
+                <button class="goal-delete" onclick="deleteDailyGoal()" title="Удалить цель">🗑️</button>
             </div>
 
             <!-- Основной контент -->
@@ -529,415 +513,486 @@
         </div>
     </div>
 
-<script>
-    // Глобальные переменные
-    let token = localStorage.getItem('token');
-    let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    let currentDate = new Date().toISOString().split('T')[0];
+    <!-- Конфетти контейнер -->
+    <div id="confettiContainer"></div>
 
-    // Инициализация при загрузке
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 Приложение загружается...');
-        console.log('Token:', token ? 'есть' : 'нет');
-        console.log('User:', currentUser);
-        
-        if (token && currentUser.username) {
-            showApp();
-        } else {
+    <script>
+        // Глобальные переменные
+        let token = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        let currentDate = new Date().toISOString().split('T')[0];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Приложение загружается...');
+            console.log('Token:', token ? 'есть' : 'нет');
+            console.log('User:', currentUser);
+            
+            if (token && currentUser.username) {
+                showApp();
+            } else {
+                showAuth();
+            }
+            updateDateDisplay();
+        });
+
+        // Показать форму входа
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+        }
+
+        // Показать форму регистрации
+        function showRegisterForm() {
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+        }
+
+        // Показать секцию авторизации
+        function showAuth() {
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('appSection').classList.remove('active');
+        }
+
+        // Показать основное приложение
+        function showApp() {
+            console.log('📱 Показываем приложение для пользователя:', currentUser.username);
+            
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('appSection').classList.add('active');
+            
+            document.getElementById('welcomeText').textContent = `Добро пожаловать, ${currentUser.username}! Сегодня мы двигаемся к мечте ✨`;
+            document.getElementById('userGreeting').textContent = `Привет, ${currentUser.username}!`;
+            
+            loadDailyGoal();
+            loadTasks();
+        }
+
+        // Регистрация
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+
+            console.log('🔄 Попытка регистрации:', { username, password: password ? '***' : 'empty' });
+
+            if (!username || !password) {
+                showError('Заполните все поля');
+                return;
+            }
+
+            try {
+                console.log('📤 Отправка запроса на /api/register');
+                
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                console.log('📥 Получен ответ:', response.status, response.statusText);
+
+                const responseText = await response.text();
+                console.log('📄 Текст ответа:', responseText);
+
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('❌ Ошибка парсинга JSON:', parseError);
+                    showError('Ошибка сервера: неверный формат ответа');
+                    return;
+                }
+
+                if (response.ok) {
+                    console.log('✅ Успешная регистрация, данные:', data);
+                    token = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showApp();
+                } else {
+                    console.error('❌ Ошибка регистрации:', data.error);
+                    showError(data.error || 'Ошибка регистрации');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка соединения:', error);
+                showError('Ошибка соединения с сервером');
+            }
+        }
+
+        // Вход
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            console.log('🔄 Попытка входа:', { username, password: password ? '***' : 'empty' });
+
+            if (!username || !password) {
+                showError('Заполните все поля');
+                return;
+            }
+
+            try {
+                console.log('📤 Отправка запроса на /api/login');
+                
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                console.log('📥 Получен ответ:', response.status, response.statusText);
+
+                const responseText = await response.text();
+                console.log('📄 Текст ответа:', responseText);
+
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    console.error('❌ Ошибка парсинга JSON:', parseError);
+                    showError('Ошибка сервера: неверный формат ответа');
+                    return;
+                }
+
+                if (response.ok) {
+                    console.log('✅ Успешный вход, данные:', data);
+                    token = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showApp();
+                } else {
+                    console.error('❌ Ошибка входа:', data.error);
+                    showError(data.error || 'Ошибка входа');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка соединения:', error);
+                showError('Ошибка соединения с сервером');
+            }
+        }
+
+        // Выход
+        function logout() {
+            token = null;
+            currentUser = {};
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
             showAuth();
         }
-        updateDateDisplay();
-    });
 
-    // Показать форму входа
-    function showLoginForm() {
-        document.getElementById('loginForm').classList.add('active');
-        document.getElementById('registerForm').classList.remove('active');
-    }
-
-    // Показать форму регистрации
-    function showRegisterForm() {
-        document.getElementById('registerForm').classList.add('active');
-        document.getElementById('loginForm').classList.remove('active');
-    }
-
-    // Показать секцию авторизации
-    function showAuth() {
-        document.getElementById('authSection').style.display = 'block';
-        document.getElementById('appSection').classList.remove('active');
-    }
-
-    // Показать основное приложение
-    function showApp() {
-        console.log('📱 Показываем приложение для пользователя:', currentUser.username);
-        
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('appSection').classList.add('active');
-        
-        // ОБНОВЛЕНО: Правильное приветствие
-        document.getElementById('welcomeText').textContent = `Добро пожаловать, ${currentUser.username}! Сегодня мы двигаемся к мечте ✨`;
-        document.getElementById('userGreeting').textContent = `Привет, ${currentUser.username}!`;
-        
-        loadDailyGoal();
-        loadTasks();
-        updateProgress();
-    }
-
-    // Регистрация
-    async function register() {
-        const username = document.getElementById('registerUsername').value;
-        const password = document.getElementById('registerPassword').value;
-
-        if (!username || !password) {
-            showError('Заполните все поля');
-            return;
+        // Показать ошибку
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
         }
 
-        try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password })
-            });
+        // Обновить отображение даты
+        function updateDateDisplay() {
+            const dateObj = new Date(currentDate);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = dateObj.toLocaleDateString('ru-RU', options);
+        }
 
-            const data = await response.json();
+        // Изменить дату
+        function changeDate(days) {
+            const dateObj = new Date(currentDate);
+            dateObj.setDate(dateObj.getDate() + days);
+            currentDate = dateObj.toISOString().split('T')[0];
+            updateDateDisplay();
+            loadDailyGoal();
+            loadTasks();
+        }
 
-            if (response.ok) {
-                token = data.token;
-                currentUser = data.user;
-                localStorage.setItem('token', token);
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showApp();
-            } else {
-                showError(data.error);
+        // Загрузить цель дня
+        async function loadDailyGoal() {
+            try {
+                const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const goal = await response.json();
+                const goalInput = document.getElementById('dailyGoalInput');
+                const goalCheckbox = document.getElementById('goalCheckbox');
+                
+                goalInput.value = goal.goal_text || '';
+                
+                // Обновляем состояние галочки
+                if (goal.completed) {
+                    goalCheckbox.classList.add('checked');
+                    goalInput.classList.add('completed');
+                } else {
+                    goalCheckbox.classList.remove('checked');
+                    goalInput.classList.remove('completed');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки цели:', error);
             }
-        } catch (error) {
-            showError('Ошибка соединения');
-        }
-    }
-
-    // Вход
-    async function login() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-
-        if (!username || !password) {
-            showError('Заполните все поля');
-            return;
         }
 
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                token = data.token;
-                currentUser = data.user;
-                localStorage.setItem('token', token);
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showApp();
-            } else {
-                showError(data.error);
-            }
-        } catch (error) {
-            showError('Ошибка соединения');
-        }
-    }
-
-    // Выход
-    function logout() {
-        token = null;
-        currentUser = {};
-        localStorage.removeItem('token');
-        localStorage.removeItem('currentUser');
-        showAuth();
-    }
-
-    // Показать ошибку
-    function showError(message) {
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.textContent = message;
-        errorDiv.classList.add('show');
-        setTimeout(() => errorDiv.classList.remove('show'), 5000);
-    }
-
-    // Обновить отображение даты
-    function updateDateDisplay() {
-        const dateObj = new Date(currentDate);
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').textContent = dateObj.toLocaleDateString('ru-RU', options);
-    }
-
-    // Изменить дату
-    function changeDate(days) {
-        const dateObj = new Date(currentDate);
-        dateObj.setDate(dateObj.getDate() + days);
-        currentDate = dateObj.toISOString().split('T')[0];
-        updateDateDisplay();
-        loadDailyGoal();
-        loadTasks();
-        updateProgress();
-    }
-
-    // Загрузить цель дня
-    async function loadDailyGoal() {
-        try {
-            const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            const goal = await response.json();
-            document.getElementById('dailyGoalInput').value = goal.goal_text || '';
-        } catch (error) {
-            console.error('Ошибка загрузки цели:', error);
-        }
-    }
-
-    // Сохранить цель дня
-    async function saveDailyGoal() {
-        const goalText = document.getElementById('dailyGoalInput').value;
-        
-        try {
-            await fetch(`/api/daily-goal?date=${currentDate}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ goal_text: goalText })
-            });
-        } catch (error) {
-            console.error('Ошибка сохранения цели:', error);
-        }
-    }
-
-    // Дебаунс для сохранения цели
-    let goalSaveTimeout;
-    document.getElementById('dailyGoalInput').addEventListener('input', function() {
-        clearTimeout(goalSaveTimeout);
-        goalSaveTimeout = setTimeout(saveDailyGoal, 1000);
-    });
-
-    // Добавить задачу
-    async function addTask() {
-        const taskInput = document.getElementById('taskInput');
-        const text = taskInput.value.trim();
-
-        if (!text) {
-            showError('Введите текст задачи');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/notes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ text, date: currentDate })
-            });
-
-            if (response.ok) {
-                taskInput.value = '';
-                loadTasks();
-                updateProgress();
-            } else {
-                showError('Ошибка добавления задачи');
-            }
-        } catch (error) {
-            showError('Ошибка соединения');
-        }
-    }
-
-    // Загрузить задачи - ИСПРАВЛЕННАЯ ФУНКЦИЯ
-    async function loadTasks() {
-        console.log('🔄 Загрузка задач для даты:', currentDate);
-        
-        try {
-            const response = await fetch(`/api/notes?date=${currentDate}`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
+        // Переключить выполнение цели дня
+        async function toggleGoalCompletion() {
+            const goalInput = document.getElementById('dailyGoalInput');
+            const goalText = goalInput.value.trim();
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!goalText) {
+                showError('Сначала установите цель дня');
+                return;
             }
+
+            try {
+                const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const currentGoal = await response.json();
+                
+                const newCompletedState = !currentGoal.completed;
+                
+                // Обновляем цель с новым состоянием выполнения
+                const updateResponse = await fetch(`/api/daily-goal?date=${currentDate}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ 
+                        goal_text: goalText,
+                        completed: newCompletedState 
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    const goalCheckbox = document.getElementById('goalCheckbox');
+                    const goalInput = document.getElementById('dailyGoalInput');
+                    
+                    if (newCompletedState) {
+                        goalCheckbox.classList.add('checked');
+                        goalInput.classList.add('completed');
+                        // ЗАПУСКАЕМ КОНФЕТТИ ПРИ ВЫПОЛНЕНИИ ЦЕЛИ
+                        showCongratulations();
+                    } else {
+                        goalCheckbox.classList.remove('checked');
+                        goalInput.classList.remove('completed');
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка переключения цели:', error);
+            }
+        }
+
+        // Удалить цель дня
+        async function deleteDailyGoal() {
+            if (!confirm('Удалить цель дня?')) return;
+
+            try {
+                const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+
+                if (response.ok) {
+                    document.getElementById('dailyGoalInput').value = '';
+                    document.getElementById('goalCheckbox').classList.remove('checked');
+                    document.getElementById('dailyGoalInput').classList.remove('completed');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления цели:', error);
+            }
+        }
+
+        // Сохранить цель дня
+        async function saveDailyGoal() {
+            const goalText = document.getElementById('dailyGoalInput').value;
             
-            const tasks = await response.json();
-            console.log('✅ Задачи загружены:', tasks);
-            displayTasks(tasks);
-        } catch (error) {
-            console.error('❌ Ошибка загрузки задач:', error);
-            showError('Ошибка загрузки задач');
-        }
-    }
-
-    // Отобразить задачи - ИСПРАВЛЕННАЯ ФУНКЦИЯ
-    function displayTasks(tasks) {
-        const tasksList = document.getElementById('tasksList');
-        tasksList.innerHTML = '';
-
-        console.log('🎯 Отображаем задачи:', tasks);
-
-        if (!tasks || tasks.length === 0) {
-            tasksList.innerHTML = '<div style="text-align: center; color: #666; padding: 40px; font-size: 16px;">🎯 Начните планировать свой день! Добавьте первую задачу.</div>';
-            return;
+            try {
+                await fetch(`/api/daily-goal?date=${currentDate}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ goal_text: goalText, completed: false })
+                });
+            } catch (error) {
+                console.error('Ошибка сохранения цели:', error);
+            }
         }
 
-        tasks.forEach(task => {
-            const taskElement = document.createElement('div');
-            taskElement.className = `task-item ${task.done ? 'done' : ''}`;
-            taskElement.innerHTML = `
-                <input type="checkbox" class="task-checkbox" ${task.done ? 'checked' : ''} 
-                       onchange="toggleTask(${task.id})">
-                <div class="task-text">${task.text}</div>
-                <button class="task-delete" onclick="deleteTask(${task.id})">🗑️</button>
-            `;
-            tasksList.appendChild(taskElement);
-        });
-    }
-
-    // Переключить статус задачи
-async function toggleTask(taskId) {
-    console.log('🔄 Переключаем задачу:', taskId);
-    
-    try {
-        const response = await fetch(`/api/notes/${taskId}/toggle`, {
-            method: 'PUT',
-            headers: { 'Authorization': 'Bearer ' + token }
+        // Дебаунс для сохранения цели
+        let goalSaveTimeout;
+        document.getElementById('dailyGoalInput').addEventListener('input', function() {
+            clearTimeout(goalSaveTimeout);
+            goalSaveTimeout = setTimeout(saveDailyGoal, 1000);
         });
 
-        if (response.ok) {
-            await loadTasks();
-            await updateProgress(); // ОБНОВЛЕНО: ждем обновления прогресса
-            
-            // Дополнительная проверка через секунду на всякий случай
-            setTimeout(updateProgress, 1000);
-        } else {
-            console.error('Ошибка API при переключении задачи');
+        // Добавить задачу
+        async function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const text = taskInput.value.trim();
+
+            if (!text) {
+                showError('Введите текст задачи');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ text, date: currentDate })
+                });
+
+                if (response.ok) {
+                    taskInput.value = '';
+                    loadTasks();
+                } else {
+                    showError('Ошибка добавления задачи');
+                }
+            } catch (error) {
+                showError('Ошибка соединения');
+            }
         }
-    } catch (error) {
-        console.error('❌ Ошибка переключения задачи:', error);
-        showError('Ошибка обновления задачи');
-    }
-}
 
-    // Удалить задачу
-    async function deleteTask(taskId) {
-        if (!confirm('Удалить эту задачу?')) return;
+        // Загрузить задачи
+        async function loadTasks() {
+            console.log('🔄 Загрузка задач для даты:', currentDate);
+            
+            try {
+                const response = await fetch(`/api/notes?date=${currentDate}`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const tasks = await response.json();
+                console.log('✅ Задачи загружены:', tasks);
+                displayTasks(tasks);
+            } catch (error) {
+                console.error('❌ Ошибка загрузки задач:', error);
+                showError('Ошибка загрузки задач');
+            }
+        }
 
-        try {
-            const response = await fetch(`/api/notes/${taskId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token }
+        // Отобразить задачи
+        function displayTasks(tasks) {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+
+            console.log('🎯 Отображаем задачи:', tasks);
+
+            if (!tasks || tasks.length === 0) {
+                tasksList.innerHTML = '<div style="text-align: center; color: #666; padding: 40px; font-size: 16px;">🎯 Начните планировать свой день! Добавьте первую задачу.</div>';
+                return;
+            }
+
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${task.done ? 'done' : ''}`;
+                taskElement.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${task.done ? 'checked' : ''} 
+                           onchange="toggleTask(${task.id})">
+                    <div class="task-text">${task.text}</div>
+                    <button class="task-delete" onclick="deleteTask(${task.id})">🗑️</button>
+                `;
+                tasksList.appendChild(taskElement);
             });
-
-            if (response.ok) {
-                loadTasks();
-                updateProgress();
-            }
-        } catch (error) {
-            console.error('❌ Ошибка удаления задачи:', error);
-            showError('Ошибка удаления задачи');
         }
-    }
 
-    // Обновить прогресс
-    // Обновить прогресс
-async function updateProgress() {
-    try {
-        const response = await fetch(`/api/stats?date=${currentDate}`, {
-            headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const stats = await response.json();
-        
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        
-        if (stats.total > 0) {
-            const percentage = (stats.completed / stats.total) * 100;
-            progressFill.style.width = percentage + '%';
-            progressText.textContent = `📈 Выполнено ${stats.completed}/${stats.total} задач`;
+        // Переключить статус задачи
+        async function toggleTask(taskId) {
+            console.log('🔄 Переключаем задачу:', taskId);
             
-            // ПРОВЕРКА НА ВСЕ ВЫПОЛНЕННЫЕ ЗАДАЧИ
-            if (stats.completed > 0 && stats.completed === stats.total) {
-                showCongratulations();
+            try {
+                const response = await fetch(`/api/notes/${taskId}/toggle`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+
+                if (response.ok) {
+                    loadTasks();
+                } else {
+                    console.error('Ошибка API при переключении задачи');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка переключения задачи:', error);
+                showError('Ошибка обновления задачи');
             }
-        } else {
-            progressFill.style.width = '0%';
-            progressText.textContent = '📝 Начните добавлять задачи';
         }
-    } catch (error) {
-        console.error('Ошибка загрузки статистики:', error);
-    }
-}
 
-// Показать поздравление с конфетти
-function showCongratulations() {
-    console.log('🎉 Все задачи выполнены! Показываем конфетти!');
-    
-    // Создаем конфетти
-    const confettiContainer = document.getElementById('confettiContainer');
-    confettiContainer.innerHTML = '';
-    
-    for (let i = 0; i < 30; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.left = Math.random() * 100 + '%';
-        confetti.style.animationDelay = (Math.random() * 2) + 's';
-        confetti.style.background = getRandomColor();
-        confettiContainer.appendChild(confetti);
-    }
-    
-    // Показываем поздравительное сообщение
-    const message = document.createElement('div');
-    message.className = 'congrats-message';
-    message.innerHTML = '🎊 Все задачи выполнены!<br>Вы великолепны! 🎊';
-    
-    document.body.appendChild(message);
-    
-    // Убираем сообщение через 3 секунды
-    setTimeout(() => {
-        message.remove();
-    }, 3000);
-    
-    // Убираем конфетти через 4 секунды
-    setTimeout(() => {
-        confettiContainer.innerHTML = '';
-    }, 4000);
-}
+        // Удалить задачу
+        async function deleteTask(taskId) {
+            if (!confirm('Удалить эту задачу?')) return;
 
-// Случайный цвет для конфетти
-function getRandomColor() {
-    const colors = [
-        '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff',
-        '#00ffff', '#ff9900', '#9900ff', '#ff0066', '#66ff00'
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
+            try {
+                const response = await fetch(`/api/notes/${taskId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
 
-    // Обработка Enter в полях ввода
-    document.getElementById('taskInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') addTask();
-    });
+                if (response.ok) {
+                    loadTasks();
+                }
+            } catch (error) {
+                console.error('❌ Ошибка удаления задачи:', error);
+                showError('Ошибка удаления задачи');
+            }
+        }
 
-    document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') login();
-    });
+        // Показать конфетти
+        function showCongratulations() {
+            console.log('🎉 Запускаем конфетти!');
+            
+            // Создаем конфетти - 150 штук
+            const confettiContainer = document.getElementById('confettiContainer');
+            confettiContainer.innerHTML = '';
+            
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = (Math.random() * 2) + 's';
+                confetti.style.background = getRandomColor();
+                confetti.style.animation = `fall ${2 + Math.random() * 2}s ease-in ${Math.random() * 2}s forwards`;
+                confettiContainer.appendChild(confetti);
+            }
+            
+            // Убираем конфетти через 4 секунды
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 4000);
+        }
 
-    document.getElementById('registerPassword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') register();
-    });
-</script>
-<!-- Конфетти контейнер -->
-<div id="confettiContainer"></div>
+        // Случайный цвет для конфетти
+        function getRandomColor() {
+            const colors = [
+                '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff',
+                '#00ffff', '#ff9900', '#9900ff', '#ff0066', '#66ff00'
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Обработка Enter в полях ввода
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addTask();
+        });
+
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+
+        document.getElementById('registerPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') register();
+        });
+    </script>
 </body>
 </html>
