@@ -60,71 +60,8 @@ function initializeDatabase() {
             reject(err);
           } else {
             console.log('✅ Таблица notes готова');
-            
-            // Таблица целей дня
-           // В функции initializeDatabase() обновите таблицу daily_goals:
-db.run(`
-  CREATE TABLE IF NOT EXISTS daily_goals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    goal_text TEXT NOT NULL,
-    date DATE NOT NULL,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    completed BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(date, user_id)
-  )
-`, (err) => {
-  if (err) console.error('❌ Ошибка создания таблицы goals:', err);
-  else console.log('✅ Таблица daily_goals готова');
-});
-
-// Обновите эндпоинт сохранения цели:
-app.post('/api/daily-goal', authenticateToken, (req, res) => {
-  const { goal_text, completed = false } = req.body;
-  const date = req.query.date || new Date().toISOString().split('T')[0];
-  const userId = req.user.id;
-
-  db.run(
-    `INSERT OR REPLACE INTO daily_goals (goal_text, date, user_id, completed) 
-     VALUES (?, ?, ?, ?)`,
-    [goal_text, date, userId, completed],
-    function(err) {
-      if (err) {
-        console.error('❌ Ошибка сохранения цели:', err);
-        return res.status(500).json({ error: 'Ошибка сервера' });
-      }
-      res.json({ message: 'Цель сохранена', goal_text, completed });
-    }
-  );
-});
-
-// Добавьте эндпоинт удаления цели:
-app.delete('/api/daily-goal', authenticateToken, (req, res) => {
-  const date = req.query.date || new Date().toISOString().split('T')[0];
-  const userId = req.user.id;
-
-  db.run(
-    "DELETE FROM daily_goals WHERE date = ? AND user_id = ?",
-    [date, userId],
-    function(err) {
-      if (err) {
-        console.error('❌ Ошибка удаления цели:', err);
-        return res.status(500).json({ error: 'Ошибка сервера' });
-      }
-      res.json({ message: 'Цель удалена' });
-    }
-  );
-});
-            `, (err) => {
-              if (err) {
-                console.error('❌ Ошибка создания таблицы goals:', err);
-                reject(err);
-              } else {
-                console.log('✅ Таблица daily_goals готова');
-                console.log('🎯 База данных инициализирована');
-                resolve();
-              }
-            });
+            console.log('🎯 База данных инициализирована');
+            resolve();
           }
         });
       }
@@ -154,7 +91,10 @@ const authenticateToken = (req, res, next) => {
 app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
 
+  console.log('🔐 Попытка регистрации:', { username, password: password ? '***' : 'empty' });
+
   if (!username || !password) {
+    console.log('❌ Пустые данные при регистрации');
     return res.status(400).json({ error: 'Имя пользователя и пароль обязательны' });
   }
 
@@ -167,14 +107,17 @@ app.post('/api/register', async (req, res) => {
       function(err) {
         if (err) {
           if (err.message.includes('UNIQUE constraint failed')) {
+            console.log('❌ Пользователь уже существует:', username);
             return res.status(400).json({ error: 'Пользователь с таким именем уже существует' });
           }
-          console.error('❌ Ошибка регистрации:', err);
+          console.error('❌ Ошибка регистрации в БД:', err);
           return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
         }
 
         const userId = this.lastID;
         const token = jwt.sign({ id: userId, username: username }, JWT_SECRET);
+        
+        console.log('✅ Успешная регистрация:', username);
         
         res.json({ 
           message: 'Пользователь успешно зарегистрирован', 
@@ -184,16 +127,19 @@ app.post('/api/register', async (req, res) => {
       }
     );
   } catch (error) {
-    console.error('❌ Ошибка регистрации:', error);
+    console.error('❌ Общая ошибка регистрации:', error);
     res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
 
-// Авторизация
+// Авторизация - ИСПРАВЛЕННАЯ ВЕРСИЯ
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
+  console.log('🔐 Попытка входа:', { username, password: password ? '***' : 'empty' });
+
   if (!username || !password) {
+    console.log('❌ Пустые данные при входе');
     return res.status(400).json({ error: 'Имя пользователя и пароль обязательны' });
   }
 
@@ -203,31 +149,42 @@ app.post('/api/login', async (req, res) => {
       [username],
       async (err, user) => {
         if (err) {
-          console.error('❌ Ошибка входа:', err);
+          console.error('❌ Ошибка БД при входе:', err);
           return res.status(500).json({ error: 'Ошибка сервера' });
         }
 
         if (!user) {
+          console.log('❌ Пользователь не найден:', username);
           return res.status(400).json({ error: 'Пользователь не найден' });
         }
 
-        const validPassword = await bcrypt.compare(password, user.password);
-        
-        if (!validPassword) {
-          return res.status(400).json({ error: 'Неверный пароль' });
-        }
+        console.log('👤 Найден пользователь:', user.username);
 
-        const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET);
-        
-        res.json({ 
-          message: 'Успешный вход в систему', 
-          token,
-          user: { id: user.id, username: user.username }
-        });
+        try {
+          const validPassword = await bcrypt.compare(password, user.password);
+          
+          if (!validPassword) {
+            console.log('❌ Неверный пароль для:', username);
+            return res.status(400).json({ error: 'Неверный пароль' });
+          }
+
+          const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET);
+          
+          console.log('✅ Успешный вход:', username);
+          
+          res.json({ 
+            message: 'Успешный вход в систему', 
+            token,
+            user: { id: user.id, username: user.username }
+          });
+        } catch (bcryptError) {
+          console.error('❌ Ошибка сравнения пароля:', bcryptError);
+          res.status(500).json({ error: 'Ошибка сервера' });
+        }
       }
     );
   } catch (error) {
-    console.error('❌ Ошибка входа:', error);
+    console.error('❌ Общая ошибка входа:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
@@ -237,6 +194,8 @@ app.get('/api/notes', authenticateToken, (req, res) => {
   const date = req.query.date || new Date().toISOString().split('T')[0];
   const userId = req.user.id;
 
+  console.log('📝 Запрос заметок для пользователя:', userId, 'дата:', date);
+
   db.all(
     "SELECT * FROM notes WHERE date = ? AND user_id = ? ORDER BY id",
     [date, userId],
@@ -245,6 +204,7 @@ app.get('/api/notes', authenticateToken, (req, res) => {
         console.error('❌ Ошибка получения заметок:', err);
         return res.status(500).json({ error: 'Ошибка сервера' });
       }
+      console.log('✅ Отправлено заметок:', rows.length);
       res.json(rows);
     }
   );
@@ -256,6 +216,8 @@ app.post('/api/notes', authenticateToken, (req, res) => {
   const date = req.body.date || new Date().toISOString().split('T')[0];
   const userId = req.user.id;
   
+  console.log('➕ Добавление заметки:', { text: note, date, userId });
+
   if (!note || note.trim() === '') {
     return res.status(400).json({ error: 'Текст заметки не может быть пустым' });
   }
@@ -268,6 +230,8 @@ app.post('/api/notes', authenticateToken, (req, res) => {
         console.error('❌ Ошибка добавления заметки:', err);
         return res.status(500).json({ error: 'Ошибка сервера' });
       }
+      
+      console.log('✅ Заметка добавлена, ID:', this.lastID);
       
       // Возвращаем созданную заметку
       db.get(
@@ -290,6 +254,8 @@ app.put('/api/notes/:id/toggle', authenticateToken, (req, res) => {
   const id = req.params.id;
   const userId = req.user.id;
 
+  console.log('🔄 Переключение статуса задачи:', { id, userId });
+
   db.run(
     "UPDATE notes SET done = NOT done WHERE id = ? AND user_id = ?",
     [id, userId],
@@ -300,9 +266,11 @@ app.put('/api/notes/:id/toggle', authenticateToken, (req, res) => {
       }
       
       if (this.changes === 0) {
+        console.log('❌ Заметка не найдена:', id);
         return res.status(404).json({ error: 'Заметка не найдена' });
       }
       
+      console.log('✅ Статус задачи переключен');
       res.json({ success: true });
     }
   );
@@ -312,6 +280,8 @@ app.put('/api/notes/:id/toggle', authenticateToken, (req, res) => {
 app.delete('/api/notes/:id', authenticateToken, (req, res) => {
   const id = req.params.id;
   const userId = req.user.id;
+
+  console.log('🗑️ Удаление заметки:', { id, userId });
 
   db.run(
     "DELETE FROM notes WHERE id = ? AND user_id = ?",
@@ -323,9 +293,11 @@ app.delete('/api/notes/:id', authenticateToken, (req, res) => {
       }
       
       if (this.changes === 0) {
+        console.log('❌ Заметка не найдена для удаления:', id);
         return res.status(404).json({ error: 'Заметка не найдена' });
       }
       
+      console.log('✅ Заметка удалена');
       res.json({ message: 'Заметка успешно удалена' });
     }
   );
@@ -335,6 +307,8 @@ app.delete('/api/notes/:id', authenticateToken, (req, res) => {
 app.get('/api/stats', authenticateToken, (req, res) => {
   const date = req.query.date || new Date().toISOString().split('T')[0];
   const userId = req.user.id;
+
+  console.log('📊 Запрос статистики:', { date, userId });
 
   db.get(
     `SELECT 
@@ -348,48 +322,11 @@ app.get('/api/stats', authenticateToken, (req, res) => {
         console.error('❌ Ошибка получения статистики:', err);
         return res.status(500).json({ error: 'Ошибка сервера' });
       }
+      console.log('✅ Статистика:', row);
       res.json({
         total: row.total || 0,
         completed: row.completed || 0
       });
-    }
-  );
-});
-
-// Получение цели дня
-app.get('/api/daily-goal', authenticateToken, (req, res) => {
-  const date = req.query.date || new Date().toISOString().split('T')[0];
-  const userId = req.user.id;
-
-  db.get(
-    "SELECT * FROM daily_goals WHERE date = ? AND user_id = ?",
-    [date, userId],
-    (err, row) => {
-      if (err) {
-        console.error('❌ Ошибка получения цели:', err);
-        return res.status(500).json({ error: 'Ошибка сервера' });
-      }
-      res.json(row || { goal_text: '' });
-    }
-  );
-});
-
-// Сохранение цели дня
-app.post('/api/daily-goal', authenticateToken, (req, res) => {
-  const { goal_text } = req.body;
-  const date = req.query.date || new Date().toISOString().split('T')[0];
-  const userId = req.user.id;
-
-  db.run(
-    `INSERT OR REPLACE INTO daily_goals (goal_text, date, user_id) 
-     VALUES (?, ?, ?)`,
-    [goal_text, date, userId],
-    function(err) {
-      if (err) {
-        console.error('❌ Ошибка сохранения цели:', err);
-        return res.status(500).json({ error: 'Ошибка сервера' });
-      }
-      res.json({ message: 'Цель сохранена', goal_text });
     }
   );
 });
@@ -418,6 +355,7 @@ app.listen(port, () => {
 
 // Обработка 404
 app.use((req, res) => {
+  console.log('❌ Маршрут не найден:', req.method, req.url);
   res.status(404).json({ error: 'Маршрут не найден' });
 });
 
