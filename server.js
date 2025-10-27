@@ -20,25 +20,27 @@ net.Socket.prototype.connect = function(...args) {
 
 console.log('🔧 Применен исправленный патч для IPv4');
 
-// Подключение к PostgreSQL
+// Подключение к PostgreSQL с принудительным IPv4
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:MyDailyPlanner123@db.bmqtmlpayroihrxmwzfj.supabase.co:5432/postgres';
+
+// Принудительно заменяем host на IPv4-совместимый
+const forcedIPv4ConnectionString = connectionString.replace(
+  'db.bmqtmlpayroihrxmwzfj.supabase.co', 
+  'aws-0-eu-central-1.pooler.supabase.com'
+);
+
 const pool = new Pool({
-    host: 'db.bmqtmlpayroihrxmwzfj.supabase.co',
-    port: 5432,
-    database: 'postgres',
-    user: 'postgres',
-    password: 'MyDailyPlanner123',
-    ssl: { 
-        rejectUnauthorized: false 
-    },
-    family: 4, // Явно указываем IPv4
-    connectionTimeoutMillis: 30000,
-    idleTimeoutMillis: 60000
+  connectionString: forcedIPv4ConnectionString,
+  ssl: { 
+    rejectUnauthorized: false 
+  },
+  // Явно указываем настройки для IPv4
+  connectionTimeoutMillis: 15000,
+  idleTimeoutMillis: 30000,
+  max: 10
 });
 
-console.log('🔧 Настройки подключения:', {
-    host: 'db.bmqtmlpayroihrxmwzfj.supabase.co',
-    family: 4
-});
+console.log('🔧 Используем принудительный IPv4 через pooler');
 
 // JWT секрет
 const JWT_SECRET = process.env.JWT_SECRET || 'daily-planner-secret-key-2024';
