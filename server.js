@@ -20,14 +20,18 @@ net.Socket.prototype.connect = function(...args) {
 
 console.log('🔧 Применен исправленный патч для IPv4');
 
-// Подключение к PostgreSQL с принудительным IPv4
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:MyDailyPlanner123@db.bmqtmlpayroihrxmwzfj.supabase.co:5432/postgres';
+// Подключение к PostgreSQL с правильным pooler
+const pool = new Pool({
+  // Используем правильный pooler URL из вашего Supabase
+  connectionString: 'postgresql://postgres:MyDailyPlanner123@aws-1-eu-west-2.pooler.supabase.com:5432/postgres',
+  ssl: { 
+    rejectUnauthorized: false 
+  },
+  connectionTimeoutMillis: 15000,
+  idleTimeoutMillis: 30000
+});
 
-// Принудительно заменяем host на IPv4-совместимый
-const forcedIPv4ConnectionString = connectionString.replace(
-  'db.bmqtmlpayroihrxmwzfj.supabase.co', 
-  'aws-0-eu-central-1.pooler.supabase.com'
-);
+console.log('🔧 Используем aws-1-eu-west-2.pooler.supabase.com');
 
 const pool = new Pool({
   connectionString: forcedIPv4ConnectionString,
@@ -41,6 +45,28 @@ const pool = new Pool({
 });
 
 console.log('🔧 Используем принудительный IPv4 через pooler');
+
+// Диагностический эндпоинт
+app.get('/api/db-info', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT version(), current_database(), current_user');
+    client.release();
+    
+    res.json({
+      success: true,
+      version: result.rows[0].version,
+      database: result.rows[0].current_database,
+      user: result.rows[0].current_user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: error.code
+    });
+  }
+});
 
 // JWT секрет
 const JWT_SECRET = process.env.JWT_SECRET || 'daily-planner-secret-key-2024';
