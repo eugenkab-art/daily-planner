@@ -2,23 +2,23 @@ require('dotenv').config();
 
 const express = require("express");
 const { Pool } = require("pg");
-const { Socket } = require('net');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.PORT || 3809;
 
-// 🔧 КРИТИЧЕСКИЙ ПАТЧ - принудительно отключаем IPv6
-console.log('🔧 Применяем патч для IPv4...');
-const OriginalSocket = Socket;
-Socket.prototype.connect = function(...args) {
-    const options = args[0];
-    if (options && typeof options === 'object' && options.family === 6) {
-        console.log('🔄 Принудительно меняем IPv6 на IPv4');
-        options.family = 4;
+// 🔧 ИСПРАВЛЕННЫЙ ПАТЧ - без рекурсии
+const net = require('net');
+const originalConnect = net.Socket.prototype.connect;
+
+net.Socket.prototype.connect = function(...args) {
+    if (args[0] && typeof args[0] === 'object') {
+        args[0].family = 4; // Принудительно IPv4
     }
-    return OriginalSocket.prototype.connect.apply(this, args);
+    return originalConnect.apply(this, args);
 };
+
+console.log('🔧 Применен исправленный патч для IPv4');
 
 // Подключение к PostgreSQL
 const pool = new Pool({
