@@ -62,15 +62,59 @@ function initializeDatabase() {
             console.log('✅ Таблица notes готова');
             
             // Таблица целей дня
-            db.run(`
-              CREATE TABLE IF NOT EXISTS daily_goals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                goal_text TEXT NOT NULL,
-                date DATE NOT NULL,
-                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(date, user_id)
-              )
+           // В функции initializeDatabase() обновите таблицу daily_goals:
+db.run(`
+  CREATE TABLE IF NOT EXISTS daily_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_text TEXT NOT NULL,
+    date DATE NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    completed BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(date, user_id)
+  )
+`, (err) => {
+  if (err) console.error('❌ Ошибка создания таблицы goals:', err);
+  else console.log('✅ Таблица daily_goals готова');
+});
+
+// Обновите эндпоинт сохранения цели:
+app.post('/api/daily-goal', authenticateToken, (req, res) => {
+  const { goal_text, completed = false } = req.body;
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  db.run(
+    `INSERT OR REPLACE INTO daily_goals (goal_text, date, user_id, completed) 
+     VALUES (?, ?, ?, ?)`,
+    [goal_text, date, userId, completed],
+    function(err) {
+      if (err) {
+        console.error('❌ Ошибка сохранения цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      res.json({ message: 'Цель сохранена', goal_text, completed });
+    }
+  );
+});
+
+// Добавьте эндпоинт удаления цели:
+app.delete('/api/daily-goal', authenticateToken, (req, res) => {
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  db.run(
+    "DELETE FROM daily_goals WHERE date = ? AND user_id = ?",
+    [date, userId],
+    function(err) {
+      if (err) {
+        console.error('❌ Ошибка удаления цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      res.json({ message: 'Цель удалена' });
+    }
+  );
+});
             `, (err) => {
               if (err) {
                 console.error('❌ Ошибка создания таблицы goals:', err);
