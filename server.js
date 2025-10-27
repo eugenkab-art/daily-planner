@@ -60,8 +60,27 @@ function initializeDatabase() {
             reject(err);
           } else {
             console.log('✅ Таблица notes готова');
-            console.log('🎯 База данных инициализирована');
-            resolve();
+            
+            // Таблица целей дня
+            db.run(`
+              CREATE TABLE IF NOT EXISTS daily_goals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                goal_text TEXT NOT NULL,
+                date DATE NOT NULL,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(date, user_id)
+              )
+            `, (err) => {
+              if (err) {
+                console.error('❌ Ошибка создания таблицы goals:', err);
+                reject(err);
+              } else {
+                console.log('✅ Таблица daily_goals готова');
+                console.log('🎯 База данных инициализирована');
+                resolve();
+              }
+            });
           }
         });
       }
@@ -264,6 +283,69 @@ app.delete('/api/notes/:id', authenticateToken, (req, res) => {
       }
       
       res.json({ message: 'Заметка успешно удалена' });
+    }
+  );
+});
+
+// Статистика задач за день
+app.get('/api/stats', authenticateToken, (req, res) => {
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  db.get(
+    `SELECT 
+      COUNT(*) as total,
+      SUM(CASE WHEN done = 1 THEN 1 ELSE 0 END) as completed
+     FROM notes 
+     WHERE date = ? AND user_id = ?`,
+    [date, userId],
+    (err, row) => {
+      if (err) {
+        console.error('❌ Ошибка получения статистики:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      res.json({
+        total: row.total || 0,
+        completed: row.completed || 0
+      });
+    }
+  );
+});
+
+// Получение цели дня
+app.get('/api/daily-goal', authenticateToken, (req, res) => {
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  db.get(
+    "SELECT * FROM daily_goals WHERE date = ? AND user_id = ?",
+    [date, userId],
+    (err, row) => {
+      if (err) {
+        console.error('❌ Ошибка получения цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      res.json(row || { goal_text: '' });
+    }
+  );
+});
+
+// Сохранение цели дня
+app.post('/api/daily-goal', authenticateToken, (req, res) => {
+  const { goal_text } = req.body;
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  db.run(
+    `INSERT OR REPLACE INTO daily_goals (goal_text, date, user_id) 
+     VALUES (?, ?, ?)`,
+    [goal_text, date, userId],
+    function(err) {
+      if (err) {
+        console.error('❌ Ошибка сохранения цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      res.json({ message: 'Цель сохранена', goal_text });
     }
   );
 });
