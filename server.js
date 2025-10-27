@@ -30,6 +30,8 @@ const pool = new Pool({
   idleTimeoutMillis: 30000
 });
 
+console.log('✅ Используем Supabase Connection Pooler с правильным паролем');
+
 console.log('🔧 Используем Supabase Connection Pooler');
 const pool = new Pool({
   connectionString: forcedIPv4ConnectionString,
