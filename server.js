@@ -66,6 +66,26 @@ function initializeDatabase() {
         });
       }
     });
+    // Таблица целей дня
+db.run(`
+  CREATE TABLE IF NOT EXISTS daily_goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_text TEXT NOT NULL,
+    date DATE NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    completed BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(date, user_id)
+  )
+`, (err) => {
+  if (err) {
+    console.error('❌ Ошибка создания таблицы goals:', err);
+    reject(err);
+  } else {
+    console.log('✅ Таблица daily_goals готова');
+    resolve();
+  }
+});
   });
 }
 
@@ -327,6 +347,71 @@ app.get('/api/stats', authenticateToken, (req, res) => {
         total: row.total || 0,
         completed: row.completed || 0
       });
+    }
+  );
+});
+
+// Получение цели дня
+app.get('/api/daily-goal', authenticateToken, (req, res) => {
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  console.log('🎯 Запрос цели дня:', { date, userId });
+
+  db.get(
+    "SELECT * FROM daily_goals WHERE date = ? AND user_id = ?",
+    [date, userId],
+    (err, row) => {
+      if (err) {
+        console.error('❌ Ошибка получения цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      console.log('✅ Цель дня:', row || 'не установлена');
+      res.json(row || { goal_text: '', completed: false });
+    }
+  );
+});
+
+// Сохранение цели дня
+app.post('/api/daily-goal', authenticateToken, (req, res) => {
+  const { goal_text, completed = false } = req.body;
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  console.log('💾 Сохранение цели дня:', { goal_text, completed, date, userId });
+
+  db.run(
+    `INSERT OR REPLACE INTO daily_goals (goal_text, date, user_id, completed) 
+     VALUES (?, ?, ?, ?)`,
+    [goal_text, date, userId, completed],
+    function(err) {
+      if (err) {
+        console.error('❌ Ошибка сохранения цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      console.log('✅ Цель дня сохранена');
+      res.json({ message: 'Цель сохранена', goal_text, completed });
+    }
+  );
+});
+
+// Удаление цели дня
+app.delete('/api/daily-goal', authenticateToken, (req, res) => {
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+  const userId = req.user.id;
+
+  console.log('🗑️ Удаление цели дня:', { date, userId });
+
+  db.run(
+    "DELETE FROM daily_goals WHERE date = ? AND user_id = ?",
+    [date, userId],
+    function(err) {
+      if (err) {
+        console.error('❌ Ошибка удаления цели:', err);
+        return res.status(500).json({ error: 'Ошибка сервера' });
+      }
+      console.log('✅ Цель дня удалена');
+      res.json({ message: 'Цель удалена' });
     }
   );
 });
