@@ -2,997 +2,186 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ежедневник - Организуй свой день</title>
+    <title>📅 Ежедневник: Вход и Регистрация</title>
     <style>
-        * {
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f5f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            padding: 0;
+        }
+        .container {
+            display: flex;
+            gap: 40px;
+            padding: 30px;
+            background: #fffdf8;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(139, 115, 85, 0.15);
+        }
+        .form-box {
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #e0d9d0;
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+            color: #5d4037;
+            margin-top: 0;
+            border-bottom: 2px solid #e0d9d0;
+            padding-bottom: 10px;
+        }
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             box-sizing: border-box;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .welcome-text {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .auth-section {
-            padding: 30px;
-            text-align: center;
-        }
-
-        .auth-form {
-            display: none;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .auth-form.active {
-            display: block;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .input-group input {
+        button {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #4facfe;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 10px;
+            background-color: #8d6e63;
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            font-weight: 600;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #4facfe;
-            color: #4facfe;
-        }
-
-        .auth-switch {
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .auth-switch a {
-            color: #4facfe;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .app-section {
-            display: none;
-            padding: 0;
-        }
-
-        .app-section.active {
-            display: block;
-        }
-
-        /* Убираем прогресс-бар */
-        .progress-container {
-            display: none;
-        }
-
-        /* Стили для цели дня */
-        .daily-goal-section {
-            padding: 20px 30px;
-            background: #fff3cd;
-            border-bottom: 1px solid #ffeaa7;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .daily-goal-content {
-            flex: 1;
-        }
-
-        .daily-goal-label {
-            font-size: 12px;
-            color: #856404;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .daily-goal-input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            font-size: 16px;
-            color: #856404;
-            font-weight: 500;
-            padding: 8px 0;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .daily-goal-input.completed {
-            opacity: 0.6;
-            text-decoration: line-through;
-        }
-
-        .daily-goal-input::placeholder {
-            color: #b8a86d;
-            font-style: italic;
-        }
-
-        /* Галочка для цели дня */
-        .goal-checkbox {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #856404;
-            border-radius: 50%;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .goal-checkbox.checked {
-            background: #4CAF50;
-            border-color: #4CAF50;
-            transform: scale(1.1);
-        }
-
-        .goal-checkbox.checked::after {
-            content: '✓';
-            color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Кнопка удаления цели */
-        .goal-delete {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 8px;
             border-radius: 4px;
-            transition: background 0.3s ease;
-            flex-shrink: 0;
+            cursor: pointer;
             font-size: 16px;
         }
-
-        .goal-delete:hover {
-            background: rgba(220, 53, 69, 0.1);
+        button:hover {
+            background-color: #6d4c41;
         }
-
-        /* Основной контент */
-        .content-section {
-            padding: 30px;
-        }
-
-        .date-navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f1f3f4;
-        }
-
-        .current-date {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .nav-btn {
-            background: #f8f9fa;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s ease;
-        }
-
-        .nav-btn:hover {
-            background: #e9ecef;
-        }
-
-        .add-task-form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .task-input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .task-input:focus {
-            outline: none;
-            border-color: #4facfe;
-        }
-
-        .tasks-list {
-            space-y: 10px;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .task-item:hover {
-            background: #e9ecef;
-        }
-
-        .task-item.done {
-            opacity: 0.7;
-        }
-
-        .task-checkbox {
-            width: 22px;
-            height: 22px;
-            border: 2px solid #ddd;
-            border-radius: 50%;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .task-checkbox:checked {
-            background: #4CAF50;
-            border-color: #4CAF50;
-            transform: scale(1.1);
-        }
-
-        .task-checkbox:checked::after {
-            content: '✓';
-            color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .task-text {
-            flex: 1;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .task-item.done .task-text {
-            text-decoration: line-through;
-            color: #666;
-        }
-
-        .task-delete {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 5px;
+        .message {
+            margin-top: 15px;
+            padding: 10px;
             border-radius: 4px;
-            transition: background 0.3s ease;
-        }
-
-        .task-delete:hover {
-            background: rgba(220, 53, 69, 0.1);
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
             text-align: center;
-            display: none;
         }
-
-        .error-message.show {
-            display: block;
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .user-info {
-            text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .logout-btn {
-            background: #6c757d;
-            margin-top: 10px;
-        }
-
-        /* Конфетти анимация */
-        .confetti {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background: #ff0000;
-            top: 0;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        @keyframes fall {
-            0% {
-                opacity: 1;
-                transform: translateY(-100px) rotate(0deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(100vh) rotate(360deg);
-            }
-        }
+        .error { background-color: #f4cccc; color: #cc0000; }
+        .success { background-color: #d9ead3; color: #274e13; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Шапка -->
-        <div class="header">
-            <h1>📝 Мой Ежедневник</h1>
-            <div class="welcome-text" id="welcomeText">Организуй свой день продуктивно</div>
-        </div>
 
-        <!-- Секция авторизации -->
-        <div class="auth-section" id="authSection">
-            <!-- Форма входа -->
-            <div class="auth-form active" id="loginForm">
-                <h2 style="margin-bottom: 20px; color: #333;">Вход в систему</h2>
-                <div class="input-group">
-                    <label for="loginUsername">Имя пользователя</label>
-                    <input type="text" id="loginUsername" placeholder="Введите ваше имя">
-                </div>
-                <div class="input-group">
-                    <label for="loginPassword">Пароль</label>
-                    <input type="password" id="loginPassword" placeholder="Введите пароль">
-                </div>
-                <button class="btn" onclick="login()">Войти</button>
-                <div class="auth-switch">
-                    Нет аккаунта? <a href="#" onclick="showRegisterForm()">Зарегистрироваться</a>
-                </div>
-            </div>
-
-            <!-- Форма регистрации -->
-            <div class="auth-form" id="registerForm">
-                <h2 style="margin-bottom: 20px; color: #333;">Регистрация</h2>
-                <div class="input-group">
-                    <label for="registerUsername">Имя пользователя</label>
-                    <input type="text" id="registerUsername" placeholder="Придумайте имя">
-                </div>
-                <div class="input-group">
-                    <label for="registerPassword">Пароль</label>
-                    <input type="password" id="registerPassword" placeholder="Придумайте пароль">
-                </div>
-                <button class="btn" onclick="register()">Зарегистрироваться</button>
-                <div class="auth-switch">
-                    Есть аккаунт? <a href="#" onclick="showLoginForm()">Войти</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Основное приложение -->
-        <div class="app-section" id="appSection">
-            <!-- Главная цель дня -->
-            <div class="daily-goal-section">
-                <div class="goal-checkbox" id="goalCheckbox" onclick="toggleGoalCompletion()"></div>
-                <div class="daily-goal-content">
-                    <div class="daily-goal-label">🎯 Главная цель дня</div>
-                    <input type="text" class="daily-goal-input" id="dailyGoalInput" 
-                           placeholder="Сегодня я добьюсь...">
-                </div>
-                <button class="goal-delete" onclick="deleteDailyGoal()" title="Удалить цель">🗑️</button>
-            </div>
-
-            <!-- Основной контент -->
-            <div class="content-section">
-                <!-- Навигация по датам -->
-                <div class="date-navigation">
-                    <button class="nav-btn" onclick="changeDate(-1)">‹</button>
-                    <div class="current-date" id="currentDate">Загрузка...</div>
-                    <button class="nav-btn" onclick="changeDate(1)">›</button>
-                </div>
-
-                <!-- Сообщение об ошибке -->
-                <div class="error-message" id="errorMessage"></div>
-
-                <!-- Форма добавления задачи -->
-                <div class="add-task-form">
-                    <input type="text" class="task-input" id="taskInput" placeholder="Добавить новую задачу...">
-                    <button class="btn" onclick="addTask()">Добавить</button>
-                </div>
-
-                <!-- Список задач -->
-                <div class="tasks-list" id="tasksList">
-                    <!-- Задачи будут здесь -->
-                </div>
-            </div>
-
-            <!-- Информация пользователя -->
-            <div class="user-info">
-                <div id="userGreeting">Добро пожаловать!</div>
-                <button class="btn logout-btn" onclick="logout()">Выйти</button>
-            </div>
-        </div>
+<div class="container">
+    
+    <div class="form-box">
+        <h2>Регистрация</h2>
+        <input type="text" id="registerName" placeholder="Имя" required>
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <input type="password" id="registerPassword" placeholder="Пароль" required>
+        <button onclick="register()">Зарегистрироваться</button>
+        <div id="registerMessage" class="message" style="display:none;"></div>
     </div>
 
-    <!-- Конфетти контейнер -->
-    <div id="confettiContainer"></div>
+    <div class="form-box">
+        <h2>Вход</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Пароль" required>
+        <button onclick="login()">Войти</button>
+        <div id="loginMessage" class="message" style="display:none;"></div>
+    </div>
 
-    <script>
-        // Глобальные переменные
-        let token = localStorage.getItem('token');
-        let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        let currentDate = new Date().toISOString().split('T')[0];
+</div>
 
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Приложение загружается...');
-            console.log('Token:', token ? 'есть' : 'нет');
-            console.log('User:', currentUser);
-            
-            if (token && currentUser.username) {
-                showApp();
-            } else {
-                showAuth();
-            }
-            updateDateDisplay();
-        });
+<script>
+    // URL вашего развернутого бэкенда на Render
+    const API_URL = "https://daily-planner-sj2y.onrender.com/api/auth";
 
-        // Показать форму входа
-        function showLoginForm() {
-            document.getElementById('loginForm').classList.add('active');
-            document.getElementById('registerForm').classList.remove('active');
-        }
+    /**
+     * Показывает сообщение об успехе или ошибке.
+     */
+    function showMessage(elementId, message, isError = false) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = isError ? 'message error' : 'message success';
+        element.style.display = 'block';
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 3000);
+    }
 
-        // Показать форму регистрации
-        function showRegisterForm() {
-            document.getElementById('registerForm').classList.add('active');
-            document.getElementById('loginForm').classList.remove('active');
-        }
+    /**
+     * Обрабатывает регистрацию нового пользователя.
+     */
+    async function register() {
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
 
-        // Показать секцию авторизации
-        function showAuth() {
-            document.getElementById('authSection').style.display = 'block';
-            document.getElementById('appSection').classList.remove('active');
-        }
-
-        // Показать основное приложение
-        function showApp() {
-            console.log('📱 Показываем приложение для пользователя:', currentUser.username);
-            
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('appSection').classList.add('active');
-            
-            document.getElementById('welcomeText').textContent = `Добро пожаловать, ${currentUser.username}! Сегодня мы двигаемся к мечте ✨`;
-            document.getElementById('userGreeting').textContent = `Привет, ${currentUser.username}!`;
-            
-            loadDailyGoal();
-            loadTasks();
-        }
-
-        // Регистрация
-        async function register() {
-            const username = document.getElementById('registerUsername').value;
-            const password = document.getElementById('registerPassword').value;
-
-            console.log('🔄 Попытка регистрации:', { username, password: password ? '***' : 'empty' });
-
-            if (!username || !password) {
-                showError('Заполните все поля');
-                return;
-            }
-
-            try {
-                console.log('📤 Отправка запроса на /api/register');
-                
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                console.log('📥 Получен ответ:', response.status, response.statusText);
-
-                const responseText = await response.text();
-                console.log('📄 Текст ответа:', responseText);
-
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (parseError) {
-                    console.error('❌ Ошибка парсинга JSON:', parseError);
-                    showError('Ошибка сервера: неверный формат ответа');
-                    return;
-                }
-
-                if (response.ok) {
-                    console.log('✅ Успешная регистрация, данные:', data);
-                    token = data.token;
-                    currentUser = data.user;
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showApp();
-                } else {
-                    console.error('❌ Ошибка регистрации:', data.error);
-                    showError(data.error || 'Ошибка регистрации');
-                }
-            } catch (error) {
-                console.error('❌ Ошибка соединения:', error);
-                showError('Ошибка соединения с сервером');
-            }
-        }
-
-        // Вход
-        async function login() {
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-
-            console.log('🔄 Попытка входа:', { username, password: password ? '***' : 'empty' });
-
-            if (!username || !password) {
-                showError('Заполните все поля');
-                return;
-            }
-
-            try {
-                console.log('📤 Отправка запроса на /api/login');
-                
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                console.log('📥 Получен ответ:', response.status, response.statusText);
-
-                const responseText = await response.text();
-                console.log('📄 Текст ответа:', responseText);
-
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (parseError) {
-                    console.error('❌ Ошибка парсинга JSON:', parseError);
-                    showError('Ошибка сервера: неверный формат ответа');
-                    return;
-                }
-
-                if (response.ok) {
-                    console.log('✅ Успешный вход, данные:', data);
-                    token = data.token;
-                    currentUser = data.user;
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showApp();
-                } else {
-                    console.error('❌ Ошибка входа:', data.error);
-                    showError(data.error || 'Ошибка входа');
-                }
-            } catch (error) {
-                console.error('❌ Ошибка соединения:', error);
-                showError('Ошибка соединения с сервером');
-            }
-        }
-
-        // Выход
-        function logout() {
-            token = null;
-            currentUser = {};
-            localStorage.removeItem('token');
-            localStorage.removeItem('currentUser');
-            showAuth();
-        }
-
-        // Показать ошибку
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => errorDiv.classList.remove('show'), 5000);
-        }
-
-        // Обновить отображение даты
-        function updateDateDisplay() {
-            const dateObj = new Date(currentDate);
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').textContent = dateObj.toLocaleDateString('ru-RU', options);
-        }
-
-        // Изменить дату
-        function changeDate(days) {
-            const dateObj = new Date(currentDate);
-            dateObj.setDate(dateObj.getDate() + days);
-            currentDate = dateObj.toISOString().split('T')[0];
-            updateDateDisplay();
-            loadDailyGoal();
-            loadTasks();
-        }
-
-        // Загрузить цель дня
-        async function loadDailyGoal() {
-            try {
-                const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const goal = await response.json();
-                const goalInput = document.getElementById('dailyGoalInput');
-                const goalCheckbox = document.getElementById('goalCheckbox');
-                
-                goalInput.value = goal.goal_text || '';
-                
-                // Обновляем состояние галочки
-                if (goal.completed) {
-                    goalCheckbox.classList.add('checked');
-                    goalInput.classList.add('completed');
-                } else {
-                    goalCheckbox.classList.remove('checked');
-                    goalInput.classList.remove('completed');
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки цели:', error);
-            }
-        }
-
-        // Переключить выполнение цели дня
-        async function toggleGoalCompletion() {
-            const goalInput = document.getElementById('dailyGoalInput');
-            const goalText = goalInput.value.trim();
-            
-            if (!goalText) {
-                showError('Сначала установите цель дня');
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const currentGoal = await response.json();
-                
-                const newCompletedState = !currentGoal.completed;
-                
-                // Обновляем цель с новым состоянием выполнения
-                const updateResponse = await fetch(`/api/daily-goal?date=${currentDate}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ 
-                        goal_text: goalText,
-                        completed: newCompletedState 
-                    })
-                });
-
-                if (updateResponse.ok) {
-                    const goalCheckbox = document.getElementById('goalCheckbox');
-                    const goalInput = document.getElementById('dailyGoalInput');
-                    
-                    if (newCompletedState) {
-                        goalCheckbox.classList.add('checked');
-                        goalInput.classList.add('completed');
-                        // ЗАПУСКАЕМ КОНФЕТТИ ПРИ ВЫПОЛНЕНИИ ЦЕЛИ
-                        showCongratulations();
-                    } else {
-                        goalCheckbox.classList.remove('checked');
-                        goalInput.classList.remove('completed');
-                    }
-                }
-            } catch (error) {
-                console.error('Ошибка переключения цели:', error);
-            }
-        }
-
-        // Удалить цель дня
-        async function deleteDailyGoal() {
-            if (!confirm('Удалить цель дня?')) return;
-
-            try {
-                const response = await fetch(`/api/daily-goal?date=${currentDate}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-
-                if (response.ok) {
-                    document.getElementById('dailyGoalInput').value = '';
-                    document.getElementById('goalCheckbox').classList.remove('checked');
-                    document.getElementById('dailyGoalInput').classList.remove('completed');
-                }
-            } catch (error) {
-                console.error('Ошибка удаления цели:', error);
-            }
-        }
-
-        // Сохранить цель дня
-        async function saveDailyGoal() {
-            const goalText = document.getElementById('dailyGoalInput').value;
-            
-            try {
-                await fetch(`/api/daily-goal?date=${currentDate}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ goal_text: goalText, completed: false })
-                });
-            } catch (error) {
-                console.error('Ошибка сохранения цели:', error);
-            }
-        }
-
-        // Дебаунс для сохранения цели
-        let goalSaveTimeout;
-        document.getElementById('dailyGoalInput').addEventListener('input', function() {
-            clearTimeout(goalSaveTimeout);
-            goalSaveTimeout = setTimeout(saveDailyGoal, 1000);
-        });
-
-        // Добавить задачу
-        async function addTask() {
-            const taskInput = document.getElementById('taskInput');
-            const text = taskInput.value.trim();
-
-            if (!text) {
-                showError('Введите текст задачи');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/notes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ text, date: currentDate })
-                });
-
-                if (response.ok) {
-                    taskInput.value = '';
-                    loadTasks();
-                } else {
-                    showError('Ошибка добавления задачи');
-                }
-            } catch (error) {
-                showError('Ошибка соединения');
-            }
-        }
-
-        // Загрузить задачи
-        async function loadTasks() {
-            console.log('🔄 Загрузка задач для даты:', currentDate);
-            
-            try {
-                const response = await fetch(`/api/notes?date=${currentDate}`, {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const tasks = await response.json();
-                console.log('✅ Задачи загружены:', tasks);
-                displayTasks(tasks);
-            } catch (error) {
-                console.error('❌ Ошибка загрузки задач:', error);
-                showError('Ошибка загрузки задач');
-            }
-        }
-
-        // Отобразить задачи
-        function displayTasks(tasks) {
-            const tasksList = document.getElementById('tasksList');
-            tasksList.innerHTML = '';
-
-            console.log('🎯 Отображаем задачи:', tasks);
-
-            if (!tasks || tasks.length === 0) {
-                tasksList.innerHTML = '<div style="text-align: center; color: #666; padding: 40px; font-size: 16px;">🎯 Начните планировать свой день! Добавьте первую задачу.</div>';
-                return;
-            }
-
-            tasks.forEach(task => {
-                const taskElement = document.createElement('div');
-                taskElement.className = `task-item ${task.done ? 'done' : ''}`;
-                taskElement.innerHTML = `
-                    <input type="checkbox" class="task-checkbox" ${task.done ? 'checked' : ''} 
-                           onchange="toggleTask(${task.id})">
-                    <div class="task-text">${task.text}</div>
-                    <button class="task-delete" onclick="deleteTask(${task.id})">🗑️</button>
-                `;
-                tasksList.appendChild(taskElement);
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
             });
-        }
 
-        // Переключить статус задачи
-        async function toggleTask(taskId) {
-            console.log('🔄 Переключаем задачу:', taskId);
-            
-            try {
-                const response = await fetch(`/api/notes/${taskId}/toggle`, {
-                    method: 'PUT',
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
+            const data = await response.json();
 
-                if (response.ok) {
-                    loadTasks();
-                } else {
-                    console.error('Ошибка API при переключении задачи');
-                }
-            } catch (error) {
-                console.error('❌ Ошибка переключения задачи:', error);
-                showError('Ошибка обновления задачи');
+            if (response.ok) {
+                // Успешная регистрация
+                localStorage.setItem('authToken', data.token);
+                showMessage('registerMessage', '✅ Регистрация успешна! Перенаправление...');
+                // Перенаправление на главный экран
+                setTimeout(() => {
+                     window.location.href = 'weekly.html'; // Ваш следующий файл
+                }, 1000);
+
+            } else {
+                // Ошибка регистрации (например, email уже занят)
+                showMessage('registerMessage', `❌ Ошибка: ${data.error || 'Неизвестная ошибка'}`, true);
             }
+        } catch (error) {
+            showMessage('registerMessage', '❌ Критическая ошибка сети.', true);
+            console.error('Ошибка регистрации:', error);
         }
+    }
 
-        // Удалить задачу
-        async function deleteTask(taskId) {
-            if (!confirm('Удалить эту задачу?')) return;
+    /**
+     * Обрабатывает вход существующего пользователя.
+     */
+    async function login() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
 
-            try {
-                const response = await fetch(`/api/notes/${taskId}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
 
-                if (response.ok) {
-                    loadTasks();
-                }
-            } catch (error) {
-                console.error('❌ Ошибка удаления задачи:', error);
-                showError('Ошибка удаления задачи');
+            const data = await response.json();
+
+            if (response.ok) {
+                // Успешный вход
+                localStorage.setItem('authToken', data.token);
+                showMessage('loginMessage', '✅ Вход успешен! Перенаправление...');
+                // Перенаправление на главный экран
+                setTimeout(() => {
+                     window.location.href = 'weekly.html'; // Ваш следующий файл
+                }, 1000);
+
+            } else {
+                // Ошибка входа (неверный логин/пароль)
+                showMessage('loginMessage', `❌ Ошибка: ${data.error || 'Неверные данные'}`, true);
             }
+        } catch (error) {
+            showMessage('loginMessage', '❌ Критическая ошибка сети.', true);
+            console.error('Ошибка входа:', error);
         }
+    }
+</script>
 
-        // Показать конфетти
-        function showCongratulations() {
-            console.log('🎉 Запускаем конфетти!');
-            
-            // Создаем конфетти - 150 штук
-            const confettiContainer = document.getElementById('confettiContainer');
-            confettiContainer.innerHTML = '';
-            
-            for (let i = 0; i < 150; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + '%';
-                confetti.style.animationDelay = (Math.random() * 2) + 's';
-                confetti.style.background = getRandomColor();
-                confetti.style.animation = `fall ${2 + Math.random() * 2}s ease-in ${Math.random() * 2}s forwards`;
-                confettiContainer.appendChild(confetti);
-            }
-            
-            // Убираем конфетти через 4 секунды
-            setTimeout(() => {
-                confettiContainer.innerHTML = '';
-            }, 4000);
-        }
-
-        // Случайный цвет для конфетти
-        function getRandomColor() {
-            const colors = [
-                '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff',
-                '#00ffff', '#ff9900', '#9900ff', '#ff0066', '#66ff00'
-            ];
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
-
-        // Обработка Enter в полях ввода
-        document.getElementById('taskInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addTask();
-        });
-
-        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
-        });
-
-        document.getElementById('registerPassword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') register();
-        });
-    </script>
 </body>
 </html>
