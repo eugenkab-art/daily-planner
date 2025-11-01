@@ -2,243 +2,186 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>📅 Еженедельный планировщик</title>
+    <title>📅 Ежедневник: Недельный Обзор</title>
     <style>
-        body { 
-            font-family: 'Arial', sans-serif; 
-            max-width: 900px; 
-            margin: 0 auto; 
-            padding: 20px;
-            background-color: #f8f5f0;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(120, 119, 116, 0.03) 3px, transparent 0),
-                radial-gradient(circle at 90% 80%, rgba(120, 119, 116, 0.02) 2px, transparent 0);
-            background-size: 80px 80px, 60px 60px;
-            min-height: 100vh;
+        /* --- Цветовая палитра и Голубой Неоморфизм --- */
+        :root {
+            --bg-color: #E8F0F7; /* Очень светло-голубой фон */
+            --primary-color: #263238; /* Темно-синий для текста */
+            --accent-color: #42A5F5; /* Яркий Голубой для CTA */
+            --light-shadow: #FFFFFF;
+            --dark-shadow: #C6D1DC;
+            --success-color: #66BB6A; /* Зеленый для счетчика */
         }
-        
-        .paper-container {
-            background: #fffdf8;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 
-                0 8px 25px rgba(139, 115, 85, 0.15),
-                0 0 0 1px rgba(139, 115, 85, 0.1);
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #c0b9af;
-        }
-        
-        .header button {
-            background: none;
-            border: 1px solid #e0d9d0;
-            color: #5d4037;
-            padding: 8px 15px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .header h1 {
-            color: #5d4037;
-            font-size: 24px;
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
             margin: 0;
+            padding: 20px;
+        }
+
+        /* --- Общие элементы (Кнопки, Заголовки) --- */
+        h1 {
             text-align: center;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* --- Навигация и кнопки (Neumorphism) --- */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
         }
         
-        .week-container {
+        .neumorphic-nav-btn {
+            background: var(--bg-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 50%; /* Круглая кнопка */
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            /* Мягкая внешняя тень */
+            box-shadow: 
+                4px 4px 8px var(--dark-shadow),
+                -4px -4px 8px var(--light-shadow);
+        }
+
+        .neumorphic-nav-btn:hover {
+            opacity: 0.95;
+            transform: scale(1.05);
+        }
+
+        .neumorphic-nav-btn:active {
+            /* Эффект нажатия (вдавленности) */
+            box-shadow: 
+                inset 3px 3px 6px var(--dark-shadow),
+                inset -3px -3px 6px var(--light-shadow);
+            transform: scale(0.98);
+        }
+
+        #currentWeekDisplay {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* --- Сетка Недели (Grid) --- */
+        .week-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        
-        .day-box {
-            background: #f7f3ed;
-            border: 1px solid #e0d9d0;
-            border-radius: 8px;
-            padding: 15px 10px;
+
+        /* --- Карточка Дня (Day Card) --- */
+        .day-card {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(139, 115, 85, 0.05);
+            transition: all 0.3s ease;
+            /* Мягкая внешняя тень */
+            box-shadow: 
+                6px 6px 12px var(--dark-shadow),
+                -6px -6px 12px var(--light-shadow);
         }
         
-        .day-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(139, 115, 85, 0.1);
-            background: #fff;
+        .day-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                8px 8px 16px var(--dark-shadow),
+                -8px -8px 16px var(--light-shadow);
+        }
+        
+        .day-card:active {
+            /* Эффект вдавливания при клике */
+             box-shadow: 
+                inset 5px 5px 10px var(--dark-shadow),
+                inset -5px -5px 10px var(--light-shadow);
+            transform: translateY(0);
         }
 
         .day-name {
-            font-size: 14px;
-            color: #8d6e63;
-            margin-bottom: 5px;
-            border-bottom: 1px solid #f0e9e1;
-            padding-bottom: 5px;
-        }
-
-        .day-number {
-            font-size: 28px;
+            font-size: 1.1em;
             font-weight: bold;
-            color: #5d4037;
-            margin-bottom: 10px;
+            color: var(--primary-color);
+            margin-bottom: 5px;
         }
 
-        .task-count {
-            font-size: 12px;
-            color: #a1887f;
-            padding: 5px 0;
-            border-top: 1px dashed #e0d9d0;
+        .day-date {
+            font-size: 2.2em;
+            font-weight: 300;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            line-height: 1;
         }
+        
+        /* Круглый индикатор задач */
+        .task-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--success-color);
+            color: white;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 0.9em;
+            margin-top: 10px;
+            box-shadow: 
+                3px 3px 6px rgba(102, 187, 106, 0.4); /* Тень от зеленого цвета */
+        }
+        
+        .task-indicator.zero {
+             background-color: var(--primary-color);
+             box-shadow: 
+                3px 3px 6px rgba(38, 50, 56, 0.2); /* Тень от основного цвета */
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
+    
+    <button class="logout-btn" onclick="logout()">Выйти</button>
 
-    <div class="paper-container">
-        
-        <div class="header">
-            <button id="prevWeekBtn">← Предыдущая</button>
-            <h1 id="currentMonthYear">...</h1>
-            <button id="nextWeekBtn">Следующая →</button>
-        </div>
+    <h1>📅 Недельный Обзор Задач</h1>
 
-        <div class="week-container" id="weekContainer">
-            </div>
-
+    <div class="navigation">
+        <button class="neumorphic-nav-btn" onclick="changeWeek(-1)">«</button>
+        <span id="currentWeekDisplay"></span>
+        <button class="neumorphic-nav-btn" onclick="changeWeek(1)">»</button>
     </div>
 
-    <script>
-        // 1. URL вашего развернутого бэкенда на Render
-        const API_BASE_URL = "https://daily-planner-sj2y.onrender.com/api";
+    <div class="week-grid" id="weekGrid">
+        </div>
 
-        function getAuthToken() {
-            return localStorage.getItem('authToken');
-        }
+<script>
+    // --- JavaScript ---
+    const API_URL = "https://daily-planner-sj2y.onrender.com";
+    let currentStartDate = new Date();
 
-        // 2. Проверка токена при загрузке страницы
-        function checkAuth() {
-            const token = getAuthToken();
-            if (!token) {
-                // Если токена нет, перенаправляем на страницу авторизации
-                window.location.href = 'index.html'; 
-                return false;
-            }
-            console.log("Пользователь авторизован.");
-            return true;
-        }
-
-        // Вспомогательные функции для работы с датами
-        function getWeekDates(startDate = new Date()) {
-            const dates = [];
-            const startOfWeek = new Date(startDate);
-            // Устанавливаем на понедельник (1)
-            startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + (startOfWeek.getDay() === 0 ? -6 : 1)); 
-
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(startOfWeek);
-                date.setDate(startOfWeek.getDate() + i);
-                dates.push(date);
-            }
-            return dates;
-        }
-
-        const dayNames = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-
-        function renderWeek(dates) {
-            const container = document.getElementById('weekContainer');
-            container.innerHTML = ''; 
-
-            const currentMonthYear = `${monthNames[dates[0].getMonth()]} ${dates[0].getFullYear()}`;
-            document.getElementById('currentMonthYear').textContent = currentMonthYear;
-
-            dates.forEach((date, index) => {
-                const day = date.getDay();
-                const dayName = dayNames[day];
-                const dayOfMonth = date.getDate();
-                // Формат даты для URL: YYYY-MM-DD
-                const dateStr = date.toISOString().split('T')[0];
-                
-                const dayBox = document.createElement('div');
-                dayBox.className = 'day-box';
-                
-                // Клик перенаправляет на страницу дня
-                dayBox.onclick = () => {
-                    window.location.href = `day.html?date=${dateStr}`;
-                };
-
-                dayBox.innerHTML = `
-                    <div class="day-name">${dayName}</div>
-                    <div class="day-number">${dayOfMonth}</div>
-                    <div class="task-count">Задач: <span id="taskCount-${index}">...</span></div>
-                `;
-                container.appendChild(dayBox);
-
-                // Загрузка счетчика задач
-                loadTaskCount(date, index);
-            });
-        }
-
-        /**
-         * Загружает количество задач для конкретной даты, используя API.
-         */
-        async function loadTaskCount(date, index) {
-            if (!checkAuth()) return; // Проверка авторизации
-
-            const token = getAuthToken();
-            const dateStr = date.toISOString().split('T')[0];
-            
-            try {
-                // Запрос к рабочему API /api/tasks (используем API_BASE_URL)
-                const response = await fetch(`${API_BASE_URL}/tasks?date=${dateStr}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                const countElement = document.getElementById(`taskCount-${index}`);
-
-                if (response.ok) {
-                    const tasks = await response.json();
-                    countElement.textContent = tasks.length;
-                } else if (response.status === 401 || response.status === 403) {
-                    // Если токен недействителен, чистим и перенаправляем
-                    localStorage.removeItem('authToken');
-                    window.location.href = 'index.html';
-                } else {
-                    countElement.textContent = 'Ошибка';
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки задач:', error);
-                document.getElementById(`taskCount-${index}`).textContent = 'Сетевая ошибка';
-            }
-        }
-
-        // Навигация по неделям
-        let currentWeekStart = new Date();
-
-        document.getElementById('prevWeekBtn').addEventListener('click', () => {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            renderWeek(getWeekDates(currentWeekStart));
-        });
-
-        document.getElementById('nextWeekBtn').addEventListener('click', () => {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            renderWeek(getWeekDates(currentWeekStart));
-        });
-
-        // Инициализация: проверка авторизации и рендеринг недели
-        document.addEventListener('DOMContentLoaded', () => {
-            if (checkAuth()) {
-                renderWeek(getWeekDates());
-            }
-        });
-    </script>
-</body>
-</html>
+    // ------------------------------------
+    // 1. УТИЛИТЫ И АВТОРИЗАЦИЯ
+    //
