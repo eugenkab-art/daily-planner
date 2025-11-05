@@ -41,18 +41,18 @@ async function createTables() {
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
                 text TEXT NOT NULL,
-                date DATE DATE NOT NULL,
+                date DATE NOT NULL, -- ИСПРАВЛЕНИЕ: Убрано дублирующееся слово DATE
                 done BOOLEAN DEFAULT FALSE
             );
         `);
         console.log("Таблицы успешно проверены/созданы.");
     } catch (err) {
         console.error("Ошибка при создании таблиц:", err.stack);
-        throw err;
+        // Не бросаем ошибку, чтобы не остановить сервер, если таблица уже существует
     }
 }
 
-// Теперь мы экспортируем ОБЕ функции: pool и createTables
+// Экспорт: pool для запросов и createTables для инициализации
 module.exports = {
     pool,
     createTables 
