@@ -1,33 +1,59 @@
 // src/db.js
 
 const { Pool } = require('pg');
+const path = require('path');
 
-// Используем DATABASE_URL, который Render автоматически устанавливает для PostgreSQL
+// КРИТИЧЕСКИ ВАЖНО: Используем DATABASE_URL из окружения Render
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-    console.error("FATAL: Переменная окружения DATABASE_URL не установлена.");
-    // В Production это должно вызвать остановку процесса
-    // process.exit(1); 
+    console.error("КРИТИЧЕСКАЯ ОШИБКА: DATABASE_URL не установлен!");
+    throw new Error("DATABASE_URL не установлен. Проверьте переменные окружения на Render.");
 }
 
+// Конфигурация для Render (обработка SSL)
 const pool = new Pool({
     connectionString: connectionString,
-    // Настройки для Render (PostgreSQL on SSL)
     ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false // Обязательно для подключения к Render DB
     }
 });
 
-// Проверка соединения при старте
-pool.connect((err, client, release) => {
-    if (err) {
-        return console.error('Ошибка подключения к PostgreSQL (проверьте DATABASE_URL):', err.stack);
-    }
-    client.release();
-    console.log('PostgreSQL: Соединение установлено успешно.');
-});
+// --- Функция для создания таблиц ---
+async function createTables() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL
+            );
 
+            CREATE TABLE IF NOT EXISTS tasks (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+                text TEXT NOT NULL,
+                date DATE NOT NULL,
+                completed BOOLEAN DEFAULT FALSE
+            );
+
+            CREATE TABLE IF NOT EXISTS notes (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+                text TEXT NOT NULL,
+                date DATE DATE NOT NULL,
+                done BOOLEAN DEFAULT FALSE
+            );
+        `);
+        console.log("Таблицы успешно проверены/созданы.");
+    } catch (err) {
+        console.error("Ошибка при создании таблиц:", err.stack);
+        throw err;
+    }
+}
+
+// Теперь мы экспортируем ОБЕ функции: pool и createTables
 module.exports = {
     pool,
+    createTables 
 };
