@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>📅 Детальный просмотр дня</title>
     <style>
+        /* ... (CSS код не менялся) ... */
         /* Общие стили */
         body { 
             font-family: 'Arial', sans-serif; 
@@ -157,6 +158,7 @@
 
     <script>
         // 1. КОНСТАНТЫ
+        // Установлен финальный адрес Render
         const API_BASE_URL = "https://daily-planner-sj2y.onrender.com/api";
         const urlParams = new URLSearchParams(window.location.search);
         const currentDateStr = urlParams.get('date'); // Формат YYYY-MM-DD
@@ -170,6 +172,7 @@
         function checkAuth() {
             const token = getAuthToken();
             if (!token) {
+                // Если токена нет или он устарел, перенаправляем на вход
                 window.location.href = 'index.html'; 
                 return false;
             }
@@ -371,7 +374,7 @@
 
             const token = getAuthToken();
             input.value = ''; // Очистка поля
-            
+
             try {
                 const response = await fetch(`${API_BASE_URL}/notes`, {
                     method: 'POST',
@@ -434,8 +437,7 @@
             }
         }
 
-
-        // 6. ИНИЦИАЛИЗАЦИЯ
+        // 6. ЗАПУСК
         document.addEventListener('DOMContentLoaded', loadData);
     </script>
 

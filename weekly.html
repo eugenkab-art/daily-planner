@@ -145,7 +145,7 @@
         .task-indicator.zero {
              background-color: var(--primary-color);
              box-shadow: 
-                3px 3px 6px rgba(38, 50, 56, 0.2); /* Тень от основного цвета */
+               3px 3px 6px rgba(38, 50, 56, 0.2); /* Тень от основного цвета */
         }
         
         .logout-btn {
@@ -179,9 +179,166 @@
 
 <script>
     // --- JavaScript ---
+    // Установлен финальный адрес Render
     const API_URL = "https://daily-planner-sj2y.onrender.com";
     let currentStartDate = new Date();
 
     // ------------------------------------
     // 1. УТИЛИТЫ И АВТОРИЗАЦИЯ
-    //
+    // ------------------------------------
+    
+    function getToken() {
+        return localStorage.getItem('authToken');
+    }
+
+    // Проверка авторизации при загрузке страницы
+    if (!getToken()) {
+        // Если токена нет, перенаправляем на страницу входа
+        window.location.href = 'index.html';
+    }
+    
+    // ФУНКЦИЯ logout (была потеряна)
+    function logout() {
+        localStorage.removeItem('authToken');
+        window.location.href = 'index.html';
+    }
+    
+    // Получить начало недели (Понедельник) для заданной даты
+    function getStartOfWeek(date) {
+        const day = date.getDay(); // 0 (Вс) до 6 (Сб)
+        
+        // Корректировка для начала недели с Понедельника (1):
+        // Если сегодня Вс (0), сдвигаем на -6, чтобы попасть на прошлый Пн.
+        // Иначе сдвигаем на 1.
+        let diff = date.getDate() - day + (day === 0 ? -6 : 1); 
+
+        const startOfWeek = new Date(date.getFullYear(), date.getMonth(), diff);
+        return startOfWeek;
+    }
+
+    // Форматирование даты в YYYY-MM-DD
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Названия дней недели для отображения (Пн - Вс)
+    const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    
+    // ------------------------------------
+    // 2. ОТРИСОВКА И ЗАГРУЗКА
+    // ------------------------------------
+
+    // Отрисовка сетки недели
+    function renderWeek(startDate) {
+        const weekGrid = document.getElementById('weekGrid');
+        weekGrid.innerHTML = ''; // Очистка
+        
+        const display = document.getElementById('currentWeekDisplay');
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        
+        // Отображение диапазона дат в заголовке
+        display.textContent = `${startDate.toLocaleDateString('ru-RU')} – ${endDate.toLocaleDateString('ru-RU')}`;
+        
+        const tasksToLoad = [];
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+            const dateStr = formatDate(date);
+            
+            // Определяем индекс дня недели (0-6)
+            let dayIndex = (i) % 7; 
+            
+            // Создание HTML для карточки дня
+            const card = document.createElement('div');
+            card.className = 'day-card';
+            card.setAttribute('data-date', dateStr);
+            // Перенаправление на day.html с правильной датой
+            card.onclick = () => window.location.href = `day.html?date=${dateStr}`; 
+
+            card.innerHTML = `
+                <div class="day-name">${dayNames[dayIndex]}</div>
+                <div class="day-date">${date.getDate()}</div>
+                <div id="count-${dateStr}">
+                    <span class="task-indicator zero">Загрузка...</span>
+                </div>
+            `;
+            
+            weekGrid.appendChild(card);
+            tasksToLoad.push(dateStr);
+        }
+        
+        // Загрузка счетчиков задач для всех дней недели
+        loadTaskCount(tasksToLoad); 
+    }
+
+    // Загрузка счетчиков задач
+    async function loadTaskCount(dates) {
+        const token = getToken();
+
+        // Создаем массив промисов для параллельной загрузки (N+1 проблема, но работает)
+        const fetchPromises = dates.map(date => 
+            fetch(`${API_URL}/api/tasks/count?date=${date}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => {
+                // Если нет авторизации, перенаправляем
+                if (response.status === 401 || response.status === 403) {
+                     logout();
+                     // Промис завершится, но не вызовет ошибку
+                     return { json: () => ({ count: 0 }) };
+                }
+                return response.json();
+            })
+            .then(data => ({ date, count: data.count || 0 })) // Возвращаем дату и счетчик
+            .catch(error => {
+                console.error(`Ошибка загрузки задач для ${date}:`, error);
+                return { date, count: 0 }; 
+            })
+        );
+        
+        // Ждем выполнения всех запросов
+        const results = await Promise.all(fetchPromises);
+
+        results.forEach(result => {
+            const { date, count } = result;
+            const container = document.getElementById(`count-${date}`);
+            
+            if (container) {
+                const indicator = container.querySelector('.task-indicator');
+                indicator.textContent = `Задач: ${count}`;
+                
+                // Стилизация в зависимости от количества задач
+                if (count > 0) {
+                    indicator.classList.remove('zero');
+                } else {
+                    indicator.classList.add('zero');
+                }
+            }
+        });
+    }
+
+    // Переключение между неделями (ФУНКЦИЯ changeWeek)
+    function changeWeek(offset) {
+        currentStartDate.setDate(currentStartDate.getDate() + (offset * 7));
+        currentStartDate = getStartOfWeek(currentStartDate); // Пересчитываем начало недели
+        renderWeek(currentStartDate);
+    }
+    
+    // ------------------------------------
+    // 3. ЗАПУСК
+    // ------------------------------------
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Установка начальной даты на начало текущей недели (Понедельник)
+        currentStartDate = getStartOfWeek(new Date());
+        renderWeek(currentStartDate);
+    });
+</script>
+
+</body>
+</html>

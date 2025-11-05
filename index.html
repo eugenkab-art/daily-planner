@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>📅 Ежедневник: Вход и Регистрация</title>
 <style>
+    /* ... (CSS код не менялся) ... */
     /* --- Цветовая палитра и Голубой Неоморфизм --- */
     :root {
         --bg-color: #E8F0F7; /* Очень светло-голубой фон */
@@ -33,7 +34,7 @@
         background: var(--bg-color);
         /* Увеличиваем радиус и сдвиг тени, чтобы эффект был заметнее */
         box-shadow: 
-            10px 10px 20px var(--dark-shadow),   
+            10px 10px 20px var(--dark-shadow),  
             -10px -10px 20px var(--light-shadow); 
         transition: all 0.3s ease;
     }
@@ -79,7 +80,7 @@
         /* Эффект "Вдавленности" */
         background: var(--bg-color);
         box-shadow: 
-            inset 4px 4px 8px var(--dark-shadow),   
+            inset 4px 4px 8px var(--dark-shadow),  
             inset -4px -4px 8px var(--light-shadow);
         transition: box-shadow 0.3s ease;
     }
@@ -166,6 +167,7 @@
 
 <script>
     // --- JavaScript ---
+    // Установлен финальный адрес Render
     const API_URL = "https://daily-planner-sj2y.onrender.com/api/auth";
 
     // Функция для переключения вкладок
